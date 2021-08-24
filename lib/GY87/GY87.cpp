@@ -3,11 +3,45 @@
 #include "config.h"
 
 esp_err_t GY87::setup(){
-    esp_err_t write_OK;
+    esp_err_t write_OK = ESP_OK;
     uint8_t opt = GY87_PWR_MGMT_1_OPT;
 
     setup_i2c();
-    write_OK = write(&opt, 1, GY87_IMU_ADD, GY87_PWR_MGMT_1_ADD);
+
+    // IMU
+    opt = GY87_PWR_MGMT_1_OPT;
+    write(&opt, 1, GY87_IMU_ADD, GY87_PWR_MGMT_1_ADD);
+
+    // ---------------------------------------------
+    opt = GY87_USER_CTRL_OPT_1;
+    write(&opt, 1, GY87_IMU_ADD, GY87_USER_CTRL_ADD);
+
+    opt = GY87_CONFIG_1_OPT_1;
+    write(&opt, 1, GY87_IMU_ADD, GY87_CONFIG_1_ADD);
+
+    // MAG
+    opt = GY87_CONFIG_2_OPT;
+    write(&opt, 1, GY87_MAG_ADD, GY87_CONFIG_2_ADD);
+
+    opt = GY87_CONFIG_1_OPT_2;
+    write(&opt, 1, GY87_IMU_ADD, GY87_CONFIG_1_ADD);
+
+    opt = GY87_USER_CTRL_OPT_2;
+    write(&opt, 1, GY87_IMU_ADD, GY87_USER_CTRL_ADD);
+
+    // IMU should read MAG
+    opt = GY87_CONFIG_3_OPT;
+    write(&opt, 1, GY87_IMU_ADD, GY87_CONFIG_3_ADD);
+
+    opt = GY87_CONFIG_4_OPT;
+    write(&opt, 1, GY87_IMU_ADD, GY87_CONFIG_4_ADD);
+
+    opt = GY87_CONFIG_5_OPT;
+    write(&opt, 1, GY87_IMU_ADD, GY87_CONFIG_5_ADD);
+
+    opt = GY87_CONFIG_6_OPT;
+    write(&opt, 1, GY87_IMU_ADD, GY87_CONFIG_6_ADD);
+
     #if LOG_GY87
     std::cout << "Setup:"<< "\t" << "write" << "\t" << "OK = "<< (write_OK == ESP_OK) << std::endl;
     #endif
@@ -16,22 +50,26 @@ esp_err_t GY87::setup(){
 
 esp_err_t GY87::read_test(){
 
-    uint8_t buffer[14];
+    uint8_t buffer[20];
     esp_err_t read_OK;
 
-    read_OK = read(buffer, 14, GY87_IMU_ADD, GY87_DATA_ADD);
+    read_OK = read(buffer, 20, GY87_IMU_ADD, GY87_IMU_DATA_ADD);
     #if LOG_GY87
     // std::cout << "Setup:"<< "\t" << "read" << "\t" << "OK = "<< (read_OK == ESP_OK) << std::endl;
 
-    std::cout << (int16_t)(buffer[0] << 8 | buffer[1])*GRAVITY/GY87_ACCEL_SENS << ",\t";
-    std::cout << (int16_t)(buffer[2] << 8 | buffer[3])*GRAVITY/GY87_ACCEL_SENS << ",\t";
-    std::cout << (int16_t)(buffer[4] << 8 | buffer[5])*GRAVITY/GY87_ACCEL_SENS << ",\t";
+    // std::cout << (int16_t)(buffer[0] << 8 | buffer[1])*GRAVITY/GY87_ACCEL_SENS << ",\t";
+    // std::cout << (int16_t)(buffer[2] << 8 | buffer[3])*GRAVITY/GY87_ACCEL_SENS << ",\t";
+    // std::cout << (int16_t)(buffer[4] << 8 | buffer[5])*GRAVITY/GY87_ACCEL_SENS << ",\t";
 
     // std::cout << (int16_t)(buffer[6] << 8 | buffer[7])/GY87_TEMP_SENS << ",\t";
 
     // std::cout << (int16_t)(buffer[8] << 8 | buffer[9])/GY87_GYRO_SENS << ",\t";
     // std::cout << (int16_t)(buffer[10] << 8 | buffer[11])/GY87_GYRO_SENS << ",\t";
     // std::cout << (int16_t)(buffer[12] << 8 | buffer[13])/GY87_GYRO_SENS << ",\t";
+
+    std::cout << (int16_t)(buffer[15] << 8 | buffer[14])/GY87_MAG_SENS << ",\t";
+    std::cout << (int16_t)(buffer[17] << 8 | buffer[16])/GY87_MAG_SENS << ",\t";
+    std::cout << (int16_t)(buffer[19] << 8 | buffer[18])/GY87_MAG_SENS << ",\t";
 
     std::cout << std::endl;
     #endif
@@ -91,6 +129,3 @@ esp_err_t GY87::read(uint8_t* buffer_ptr, const size_t size, const uint8_t addre
     i2c_cmd_link_delete(command);
     return i2c_OK;
 };
-
-
-// esp_err_t readAccelData()
