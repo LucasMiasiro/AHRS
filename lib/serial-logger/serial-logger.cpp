@@ -3,6 +3,8 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
+namespace log{
+
 void log_example()
 {
     std::cout << "Hey!" << std::endl;
@@ -12,3 +14,27 @@ void log_example()
         vTaskDelay(10/portTICK_PERIOD_MS);
     }
 }
+
+void header()
+{
+    blank_lines(3);
+    ruler();
+    std::cout << "Starting..." << std::endl;
+    ruler();
+}
+
+void blank_lines(int line_number = 1)
+{
+    for (int i = 0; i < line_number; i++)
+    {
+        std::cout << "\n";
+    }
+}
+
+void ruler()
+{
+    std::cout << "--------------------" << std::endl;
+}
+
+
+};
