@@ -1,6 +1,7 @@
 #include "GY87.h"
 #include "driver/i2c.h"
 #include "config.h"
+#include <math.h> 
 
 esp_err_t GY87::setup(){
     esp_err_t write_OK = ESP_OK;
@@ -67,14 +68,82 @@ esp_err_t GY87::read_test(){
     // std::cout << (int16_t)(buffer[10] << 8 | buffer[11])/GY87_GYRO_SENS << ",\t";
     // std::cout << (int16_t)(buffer[12] << 8 | buffer[13])/GY87_GYRO_SENS << ",\t";
 
-    std::cout << (int16_t)(buffer[15] << 8 | buffer[14])/GY87_MAG_SENS << ",\t";
-    std::cout << (int16_t)(buffer[17] << 8 | buffer[16])/GY87_MAG_SENS << ",\t";
-    std::cout << (int16_t)(buffer[19] << 8 | buffer[18])/GY87_MAG_SENS << ",\t";
+    int16_t mag1_raw = (buffer[15] << 8 | buffer[14]);
+    int16_t mag2_raw = (buffer[17] << 8 | buffer[16]);
+    int16_t mag3_raw = (buffer[19] << 8 | buffer[18]);
+    float mag1 = mag1_raw/GY87_MAG_SENS - (magCal[0]+magCal[1])/2;
+    float mag2 = mag2_raw/GY87_MAG_SENS - (magCal[2]+magCal[3])/2;
+    float mag3 = mag3_raw/GY87_MAG_SENS - (magCal[4]+magCal[5])/2;
+
+    std::cout << mag1 << ",\t";
+    std::cout << mag2 << ",\t";
+    std::cout << mag3 << ",\t";
+    std::cout << sqrt(mag1*mag1 + mag2*mag2 + mag3*mag3) << ",\t";
 
     std::cout << std::endl;
     #endif
     return read_OK;
 };
+
+bool GY87::calibrate_mag(float *mag_min_max){
+
+    uint8_t buffer[20];
+    bool newMax = 0;
+
+    read(buffer, 20, GY87_IMU_ADD, GY87_IMU_DATA_ADD);
+    int16_t mag1_raw = (buffer[15] << 8 | buffer[14]);
+    int16_t mag2_raw = (buffer[17] << 8 | buffer[16]);
+    int16_t mag3_raw = (buffer[19] << 8 | buffer[18]);
+    float mag1 = mag1_raw/GY87_MAG_SENS;
+    float mag2 = mag2_raw/GY87_MAG_SENS;
+    float mag3 = mag3_raw/GY87_MAG_SENS;
+    if (*mag_min_max == 0){
+        *mag_min_max = mag1;
+        *(mag_min_max+1) = mag1;
+        *(mag_min_max+2) = mag2;
+        *(mag_min_max+3) = mag2;
+        *(mag_min_max+4) = mag3;
+        *(mag_min_max+5) = mag3;
+        return 0;
+    }
+    
+    if (mag1 < *mag_min_max){
+        *mag_min_max = mag1;
+        newMax = 1;
+        }
+    if (mag1 > *(mag_min_max+1)){
+        *(mag_min_max+1) = mag1;
+        newMax = 1;
+        }
+
+    if (mag2 < *(mag_min_max+2)){
+        *(mag_min_max+2) = mag2;
+        newMax = 1;
+        }
+    if (mag3 > *(mag_min_max+3)){
+        *(mag_min_max+3) = mag2;
+        newMax = 1;
+        }
+
+    if (mag3 < *(mag_min_max+4)){
+        *(mag_min_max+4) = mag3;
+        newMax = 1;
+        }
+    if (mag3 > *(mag_min_max+5)){
+        *(mag_min_max+5) = mag3;
+        newMax = 1;
+        }
+
+    if (newMax){
+        for (auto i = 0; i < 6; i++){
+            std::cout << *(mag_min_max+i) << ", ";
+        }
+        std::cout << std::endl;
+    }
+    return newMax;
+};
+
+
 
 bool GY87::setup_i2c(){
     i2c_config_t conf;
