@@ -1,7 +1,8 @@
 #pragma once
 
+// Application Control
 #define DEFAULT_MODE                    1
-#define CALIBRATE_MAG                   1
+#define CALIBRATE_MAG                   0
 #define SHOULD_LOG                      1
 #define SYSTEM_SAMPLE_PERIOD_MS         10
 
@@ -14,6 +15,7 @@
     #define LOG_GY87                    0
 #endif
 
+// I2C Param
 #define GY87_SDA_IO                     21
 #define GY87_SCL_IO                     22
 #define GY87_MASTER_FREQ_HZ             100000
@@ -46,16 +48,16 @@
 #define GY87_IMU_DATA_ADD               0X3B // First accel data address
 #define GY87_ACCEL_SENS                 0.0000610352f // Accel sensivity
 #define GY87_GYRO_SENS                  0.0076335878f // Gyro sensivity
-#define GY87_MAG_SENS                   0.3333333333f // Mag sensivity
 
 // MAG
 #define GY87_MAG_ADD                    0X0D
 #define GY87_CONFIG_2_ADD               0X09
-#define GY87_CONFIG_2_OPT               0x99 // Continuous measurement mode
+#define GY87_CONFIG_2_OPT               0XCD // Continuous Measurement Mode, Output Rate, Range, Oversampling Rate
+#define GY87_MAG_SENS                   0.0833333333f // Mag sensivity
 #if CALIBRATE_MAG == 1
-    #define GY87_MAG_CAL                0, 0, 0, 0, 0, 0
+    #define GY87_MAG_CAL                0, 0, 0, 1, 1, 1
 #else
-    #define GY87_MAG_CAL                440, 475, 1055, 1101, 786, 870
+    #define GY87_MAG_CAL                291.333, 771.125, 886.458, 1, 1, 1
 #endif
 
 // Constants
@@ -64,12 +66,3 @@
 
 // GPIO
 #define BUILTIN_LED                     GPIO_NUM_2
-
-
-// #define INT_PIN_CFG 0X37
-// #define USER_CTRL 0X6A
-// #define GY87_GYRO 0X43 // First gyro data address
-
-// #define MAG_ADD 0X0D
-// #define MODE_REG 9
-// #define MAG 01

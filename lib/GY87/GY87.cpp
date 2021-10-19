@@ -36,9 +36,9 @@ bool GY87::get_data(float* A, float* G, float* M){
         *(G+1) = G_raw[1]*GY87_GYRO_SENS;
         *(G+2) = G_raw[2]*GY87_GYRO_SENS;
 
-        *M = M_raw[0]*GY87_MAG_SENS;
-        *(M+1) = M_raw[1]*GY87_MAG_SENS;
-        *(M+2) = M_raw[2]*GY87_MAG_SENS;
+        *M = M_raw[0]*GY87_MAG_SENS - magCal[0];
+        *(M+1) = M_raw[1]*GY87_MAG_SENS - magCal[1];
+        *(M+2) = M_raw[2]*GY87_MAG_SENS - magCal[2];
 
         return 1;
     }
@@ -51,9 +51,11 @@ bool GY87::get_data(float* A, float* G, float* M){
     *(G+1) = G_raw_accum[1]*GY87_GYRO_SENS/N_samples;
     *(G+2) = G_raw_accum[2]*GY87_GYRO_SENS/N_samples;
 
-    *M = M_raw_accum[0]*GY87_MAG_SENS/N_samples;
-    *(M+1) = M_raw_accum[1]*GY87_MAG_SENS/N_samples;
-    *(M+2) = M_raw_accum[2]*GY87_MAG_SENS/N_samples;
+    *M = M_raw_accum[0]*GY87_MAG_SENS/N_samples - magCal[0];
+    *(M+1) = M_raw_accum[1]*GY87_MAG_SENS/N_samples - magCal[1];
+    *(M+2) = M_raw_accum[2]*GY87_MAG_SENS/N_samples - magCal[2];
+
+    magModule = sqrt((*M)*(*M) + (*(M+1))*(*(M+1)) + (*(M+2))*(*(M+2)));
 
     clean_accum();
 
@@ -63,15 +65,16 @@ bool GY87::get_data(float* A, float* G, float* M){
 bool GY87::calibrate_mag(float *mag_min_max){
 
     uint8_t buffer[20];
+    float magCal_temp[6] = {0};
     bool newMax = 0;
 
     read(buffer, 20, GY87_IMU_ADD, GY87_IMU_DATA_ADD);
     int16_t mag1_raw = (buffer[15] << 8 | buffer[14]);
     int16_t mag2_raw = (buffer[17] << 8 | buffer[16]);
     int16_t mag3_raw = (buffer[19] << 8 | buffer[18]);
-    float mag1 = mag1_raw/GY87_MAG_SENS;
-    float mag2 = mag2_raw/GY87_MAG_SENS;
-    float mag3 = mag3_raw/GY87_MAG_SENS;
+    float mag1 = (float)mag1_raw*GY87_MAG_SENS;
+    float mag2 = (float)mag2_raw*GY87_MAG_SENS;
+    float mag3 = (float)mag3_raw*GY87_MAG_SENS;
     if (*mag_min_max == 0){
         *mag_min_max = mag1;
         *(mag_min_max+1) = mag1;
@@ -110,10 +113,17 @@ bool GY87::calibrate_mag(float *mag_min_max){
         }
 
     if (newMax){
+        magCal_temp[0] = (*(mag_min_max) + *(mag_min_max+1))/2;
+        magCal_temp[1] = (*(mag_min_max+2) + *(mag_min_max+3))/2;
+        magCal_temp[2] = (*(mag_min_max+4) + *(mag_min_max+5))/2;
+        magCal_temp[3] = 1;
+        magCal_temp[4] = 1;
+        magCal_temp[5] = 1;
+
         for (auto i = 0; i < 5; i++){
-            std::cout << *(mag_min_max+i) << ", ";
+            std::cout << (float)*(magCal_temp+i) << ", ";
         }
-        std::cout << *(mag_min_max+5);
+        std::cout << (float)*(magCal_temp+5);
         std::cout << std::endl;
     }
     return newMax;

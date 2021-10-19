@@ -21,8 +21,9 @@ public:
 
     GY87();
     esp_err_t setup();
-    esp_err_t read_test();
     bool calibrate_loop();
+
+    float magModule = 0;
 
     bool read_data();
     bool get_data(float*, float*, float*);
