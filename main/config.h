@@ -1,7 +1,8 @@
 #pragma once
 
-#define SHOULD_LOG                      1
+#define DEFAULT_MODE                    1
 #define CALIBRATE_MAG                   0
+#define SHOULD_LOG                      1
 
 #if SHOULD_LOG
     #include <iostream>
@@ -42,14 +43,14 @@
 #define GY87_CONFIG_6_ADD               0X67
 #define GY87_CONFIG_6_OPT               1 // 0 delay
 #define GY87_IMU_DATA_ADD               0X3B // First accel data address
-#define GY87_ACCEL_SENS                 16384.0 // Accel sensivity
-#define GY87_GYRO_SENS                  131.0 // Gyro sensivity
+#define GY87_ACCEL_SENS                 0.0000610352f // Accel sensivity
+#define GY87_GYRO_SENS                  0.0076335878f // Gyro sensivity
+#define GY87_MAG_SENS                   0.3333333333f // Mag sensivity
 
 // MAG
 #define GY87_MAG_ADD                    0X0D
 #define GY87_CONFIG_2_ADD               0X09
 #define GY87_CONFIG_2_OPT               0x99 // Continuous measurement mode
-#define GY87_MAG_SENS                   3 // Mag sensivity
 #if CALIBRATE_MAG == 1
     #define GY87_MAG_CAL                0, 0, 0, 0, 0, 0
 #else
