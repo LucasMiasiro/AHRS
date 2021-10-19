@@ -1,8 +1,9 @@
 #pragma once
 
 #define DEFAULT_MODE                    1
-#define CALIBRATE_MAG                   0
+#define CALIBRATE_MAG                   1
 #define SHOULD_LOG                      1
+#define SYSTEM_SAMPLE_PERIOD_MS         10
 
 #if SHOULD_LOG
     #include <iostream>

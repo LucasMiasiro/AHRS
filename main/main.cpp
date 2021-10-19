@@ -1,7 +1,6 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "serial-logger.h"
-#include "gpio-handler.h"
 #include "main.h"
 #include "config.h"
 #include "GY87.h"
@@ -10,14 +9,18 @@
 #if DEFAULT_MODE
 extern "C" void app_main(void)
 {
-    static TaskHandle_t sensorTask_h = NULL, navTask_h = NULL;
+    static TaskHandle_t sensorTask_h = NULL, navTask_h = NULL, sendTask_h = NULL;
 
     static GY87 IMU;
     static float A[3], G[3], M[3];
+    static float eulerAngles[3], eulerAngRates[3];
+
     static navData_ptr navData = {.IMU_ptr = &IMU,
                                 .A_ptr = A,
                                 .G_ptr = G,
-                                .M_ptr = M};
+                                .M_ptr = M,
+                                .eulerAngles_ptr = eulerAngles,
+                                .eulerAngRates_ptr = eulerAngRates};
 
     vTaskDelay(1000/portTICK_PERIOD_MS);
     #if LOG_MAIN
@@ -34,58 +37,33 @@ extern "C" void app_main(void)
 
     xTaskCreatePinnedToCore(navTask,
                             "Navigation Task",
-                            1*8096,
+                            4*1024,
                             &navData,
-                            2,
+                            3,
                             &navTask_h,
                             1);
 
-    // xTaskCreatePinnedToCore(navTask2,
-    //                         "Navigation Task",
-    //                         4096,
-    //                         &IMU,
-    //                         2,
-    //                         &navTask_h,
-    //                         1);
-
-    
+    xTaskCreatePinnedToCore(sendTask,
+                            "Send Task",
+                            4*1024,
+                            &navData,
+                            2,
+                            &sendTask_h,
+                            1);
 }
 
 #elif CALIBRATE_MAG
 extern "C" void app_main(void)
 {
-    float mag_param[6] = {0};
-    uint8_t count = 0;
-    builtin_led Led;
-
     GY87 IMU;
     while(1){
-        if (IMU.calibrate_mag(&mag_param[0])){
-            count = 0;
-        }
-
-        if (count < 10){
-            Led.set_level(1);
-            count++;
-        } else {
-            Led.set_level(0);
-        }
-
+        IMU.calibrate_loop();
         vTaskDelay(10);
     }
 }
 #else
 extern "C" void app_main(void)
 {
-    #if LOG_MAIN
-    log::header();
-    #endif
-
-    GY87 IMU;
-    while(1){
-        IMU.read_test();
-        vTaskDelay(10);
-    }
 }
 #endif
 
@@ -93,8 +71,6 @@ void sensorTask(void* Parameters){
     GY87* IMU = (GY87*) Parameters;
     while(1){
         IMU->accumulate_data();
-        // std::cout << "newdata" << std::endl;
-        vTaskDelay(10);
     }
 }
 
@@ -102,16 +78,24 @@ void navTask(void* Parameters){
     navData_ptr* navData = (navData_ptr*) Parameters;
     while(1){
         navData->IMU_ptr->get_data(navData->A_ptr, navData->G_ptr, navData->M_ptr);
-        std::cout << *(navData->A_ptr) << std::endl;
-        vTaskDelay(100);
+        vTaskDelay(SYSTEM_SAMPLE_PERIOD_MS/portTICK_PERIOD_MS); //TODO: Setar taxa fixa para execução da Navegação
     }
 }
 
-void navTask2(void* Parameters){
-    GY87* IMU = (GY87*) Parameters;
-    float A[3], B[3], C[3];
+void sendTask(void* Parameters){
+    navData_ptr* navData = (navData_ptr*) Parameters;
     while(1){
-        IMU->get_data(A,B,C);
-        vTaskDelay(100);
+        std::cout << *(navData->A_ptr) << " ";
+        std::cout << *(navData->A_ptr+1) << " ";
+        std::cout << *(navData->A_ptr+2) << " ";
+        std::cout << *(navData->G_ptr) << " ";
+        std::cout << *(navData->G_ptr+1) << " ";
+        std::cout << *(navData->G_ptr+2) << " ";
+        // std::cout << *(navData->M_ptr) << " ";
+        // std::cout << *(navData->M_ptr+1) << " ";
+        // std::cout << *(navData->M_ptr+2) << " ";
+        std::cout << std::endl;
+
+        vTaskDelay(SYSTEM_SAMPLE_PERIOD_MS/portTICK_PERIOD_MS); //TODO: Setar taxa fixa para execução da Navegação
     }
 }

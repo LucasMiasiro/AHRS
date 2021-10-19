@@ -2,6 +2,158 @@
 #include "driver/i2c.h"
 #include "config.h"
 #include <math.h> 
+#include "gpio-handler.h"
+
+bool GY87::accumulate_data(){
+    if (read_data()){
+        return 1;
+    }
+
+    A_raw_accum[0] += A_raw[0];
+    A_raw_accum[1] += A_raw[1];
+    A_raw_accum[2] += A_raw[2];
+
+    G_raw_accum[0] += G_raw[0];
+    G_raw_accum[1] += G_raw[1];
+    G_raw_accum[2] += G_raw[2];
+
+    M_raw_accum[0] += M_raw[0];
+    M_raw_accum[1] += M_raw[1];
+    M_raw_accum[2] += M_raw[2];
+
+    N_samples++;
+
+    return 0;
+}
+
+bool GY87::get_data(float* A, float* G, float* M){
+    if (N_samples == 0){
+        *A = A_raw[0]*GY87_ACCEL_SENS;
+        *(A+1) = A_raw[1]*GY87_ACCEL_SENS;
+        *(A+2) = A_raw[2]*GY87_ACCEL_SENS;
+
+        *G = G_raw[0]*GY87_GYRO_SENS;
+        *(G+1) = G_raw[1]*GY87_GYRO_SENS;
+        *(G+2) = G_raw[2]*GY87_GYRO_SENS;
+
+        *M = M_raw[0]*GY87_MAG_SENS;
+        *(M+1) = M_raw[1]*GY87_MAG_SENS;
+        *(M+2) = M_raw[2]*GY87_MAG_SENS;
+
+        return 1;
+    }
+
+    *A = A_raw_accum[0]*GY87_ACCEL_SENS/N_samples;
+    *(A+1) = A_raw_accum[1]*GY87_ACCEL_SENS/N_samples;
+    *(A+2) = A_raw_accum[2]*GY87_ACCEL_SENS/N_samples;
+
+    *G = G_raw_accum[0]*GY87_GYRO_SENS/N_samples;
+    *(G+1) = G_raw_accum[1]*GY87_GYRO_SENS/N_samples;
+    *(G+2) = G_raw_accum[2]*GY87_GYRO_SENS/N_samples;
+
+    *M = M_raw_accum[0]*GY87_MAG_SENS/N_samples;
+    *(M+1) = M_raw_accum[1]*GY87_MAG_SENS/N_samples;
+    *(M+2) = M_raw_accum[2]*GY87_MAG_SENS/N_samples;
+
+    clean_accum();
+
+    return 0;
+}
+
+bool GY87::calibrate_mag(float *mag_min_max){
+
+    uint8_t buffer[20];
+    bool newMax = 0;
+
+    read(buffer, 20, GY87_IMU_ADD, GY87_IMU_DATA_ADD);
+    int16_t mag1_raw = (buffer[15] << 8 | buffer[14]);
+    int16_t mag2_raw = (buffer[17] << 8 | buffer[16]);
+    int16_t mag3_raw = (buffer[19] << 8 | buffer[18]);
+    float mag1 = mag1_raw/GY87_MAG_SENS;
+    float mag2 = mag2_raw/GY87_MAG_SENS;
+    float mag3 = mag3_raw/GY87_MAG_SENS;
+    if (*mag_min_max == 0){
+        *mag_min_max = mag1;
+        *(mag_min_max+1) = mag1;
+        *(mag_min_max+2) = mag2;
+        *(mag_min_max+3) = mag2;
+        *(mag_min_max+4) = mag3;
+        *(mag_min_max+5) = mag3;
+        return 0;
+    }
+    
+    if (mag1 < *mag_min_max){
+        *mag_min_max = mag1;
+        newMax = 1;
+        }
+    if (mag1 > *(mag_min_max+1)){
+        *(mag_min_max+1) = mag1;
+        newMax = 1;
+        }
+
+    if (mag2 < *(mag_min_max+2)){
+        *(mag_min_max+2) = mag2;
+        newMax = 1;
+        }
+    if (mag2 > *(mag_min_max+3)){
+        *(mag_min_max+3) = mag2;
+        newMax = 1;
+        }
+
+    if (mag3 < *(mag_min_max+4)){
+        *(mag_min_max+4) = mag3;
+        newMax = 1;
+        }
+    if (mag3 > *(mag_min_max+5)){
+        *(mag_min_max+5) = mag3;
+        newMax = 1;
+        }
+
+    if (newMax){
+        for (auto i = 0; i < 5; i++){
+            std::cout << *(mag_min_max+i) << ", ";
+        }
+        std::cout << *(mag_min_max+5);
+        std::cout << std::endl;
+    }
+    return newMax;
+};
+
+bool GY87::calibrate_loop(){
+    static float mag_param[6] = {0};
+    static uint8_t count = 0;
+    static builtin_led Led;
+
+    if (calibrate_mag(&mag_param[0])){
+        count = 0;
+    }
+
+    if (count < 10){
+        Led.set_level(1);
+        count++;
+    } else {
+        Led.set_level(0);
+    }
+    return 0;
+}
+
+bool GY87::clean_accum(){
+    A_raw_accum[0] = 0;
+    A_raw_accum[1] = 0;
+    A_raw_accum[2] = 0;
+    G_raw_accum[0] = 0;
+    G_raw_accum[1] = 0;
+    G_raw_accum[2] = 0;
+    M_raw_accum[0] = 0;
+    M_raw_accum[1] = 0;
+    M_raw_accum[2] = 0;
+
+    // std::cout << "[samples] "<< (int)N_samples << std::endl;
+
+    N_samples = 0;
+
+    return 0;
+}
 
 GY87::GY87(){
     uint8_t opt;
@@ -65,156 +217,6 @@ bool GY87::read_data(){
 
     return 0;
 }
-
-bool GY87::accumulate_data(){
-    if (read_data()){
-        return 1;
-    }
-
-    A_raw_accum[0] += A_raw[0];
-    A_raw_accum[1] += A_raw[1];
-    A_raw_accum[2] += A_raw[2];
-
-    G_raw_accum[0] += G_raw[0];
-    G_raw_accum[1] += G_raw[1];
-    G_raw_accum[2] += G_raw[2];
-
-    M_raw_accum[0] += M_raw[0];
-    M_raw_accum[1] += M_raw[1];
-    M_raw_accum[2] += M_raw[2];
-
-    N_samples++;
-
-    return 0;
-}
-
-bool GY87::get_data(float* A, float* G, float* M){
-    if (N_samples == 0){
-        *A = A_raw[0]*GY87_ACCEL_SENS;
-        *(A+1) = A_raw[1]*GY87_ACCEL_SENS;
-        *(A+2) = A_raw[2]*GY87_ACCEL_SENS;
-
-        *G = G_raw[0]*GY87_GYRO_SENS;
-        *(G+1) = G_raw[1]*GY87_GYRO_SENS;
-        *(G+2) = G_raw[2]*GY87_GYRO_SENS;
-
-        *M = M_raw[0]*GY87_MAG_SENS;
-        *(M+1) = M_raw[1]*GY87_MAG_SENS;
-        *(M+2) = M_raw[2]*GY87_MAG_SENS;
-
-        return 1;
-    }
-
-    *A = A_raw_accum[0]*GY87_ACCEL_SENS/N_samples;
-    *(A+1) = A_raw_accum[1]*GY87_ACCEL_SENS/N_samples;
-    *(A+2) = A_raw_accum[2]*GY87_ACCEL_SENS/N_samples;
-
-    *G = G_raw_accum[0]*GY87_GYRO_SENS/N_samples;
-    *(G+1) = G_raw_accum[1]*GY87_GYRO_SENS/N_samples;
-    *(G+2) = G_raw_accum[2]*GY87_GYRO_SENS/N_samples;
-
-    *M = M_raw_accum[0]*GY87_MAG_SENS/N_samples;
-    *(M+1) = M_raw_accum[1]*GY87_MAG_SENS/N_samples;
-    *(M+2) = M_raw_accum[2]*GY87_MAG_SENS/N_samples;
-
-    return 0;
-}
-
-esp_err_t GY87::read_test(){
-
-    uint8_t buffer[20];
-    esp_err_t read_OK;
-
-    read_OK = read(buffer, 20, GY87_IMU_ADD, GY87_IMU_DATA_ADD);
-    #if LOG_GY87
-    // std::cout << "Setup:"<< "\t" << "read" << "\t" << "OK = "<< (read_OK == ESP_OK) << std::endl;
-
-    // std::cout << (int16_t)(buffer[0] << 8 | buffer[1])*GRAVITY/GY87_ACCEL_SENS << ",\t";
-    // std::cout << (int16_t)(buffer[2] << 8 | buffer[3])*GRAVITY/GY87_ACCEL_SENS << ",\t";
-    // std::cout << (int16_t)(buffer[4] << 8 | buffer[5])*GRAVITY/GY87_ACCEL_SENS << ",\t";
-
-    // std::cout << (int16_t)(buffer[6] << 8 | buffer[7])/GY87_TEMP_SENS << ",\t";
-
-    // std::cout << (int16_t)(buffer[8] << 8 | buffer[9])/GY87_GYRO_SENS << ",\t";
-    // std::cout << (int16_t)(buffer[10] << 8 | buffer[11])/GY87_GYRO_SENS << ",\t";
-    // std::cout << (int16_t)(buffer[12] << 8 | buffer[13])/GY87_GYRO_SENS << ",\t";
-
-    int16_t mag1_raw = (buffer[15] << 8 | buffer[14]);
-    int16_t mag2_raw = (buffer[17] << 8 | buffer[16]);
-    int16_t mag3_raw = (buffer[19] << 8 | buffer[18]);
-    float mag1 = mag1_raw/GY87_MAG_SENS - (magCal[0]+magCal[1])/2;
-    float mag2 = mag2_raw/GY87_MAG_SENS - (magCal[2]+magCal[3])/2;
-    float mag3 = mag3_raw/GY87_MAG_SENS - (magCal[4]+magCal[5])/2;
-
-    std::cout << mag1 << ",\t";
-    std::cout << mag2 << ",\t";
-    std::cout << mag3 << ",\t";
-    std::cout << sqrt(mag1*mag1 + mag2*mag2 + mag3*mag3) << ",\t";
-
-    std::cout << std::endl;
-    #endif
-    return read_OK;
-};
-
-bool GY87::calibrate_mag(float *mag_min_max){
-
-    uint8_t buffer[20];
-    bool newMax = 0;
-
-    read(buffer, 20, GY87_IMU_ADD, GY87_IMU_DATA_ADD);
-    int16_t mag1_raw = (buffer[15] << 8 | buffer[14]);
-    int16_t mag2_raw = (buffer[17] << 8 | buffer[16]);
-    int16_t mag3_raw = (buffer[19] << 8 | buffer[18]);
-    float mag1 = mag1_raw/GY87_MAG_SENS;
-    float mag2 = mag2_raw/GY87_MAG_SENS;
-    float mag3 = mag3_raw/GY87_MAG_SENS;
-    if (*mag_min_max == 0){
-        *mag_min_max = mag1;
-        *(mag_min_max+1) = mag1;
-        *(mag_min_max+2) = mag2;
-        *(mag_min_max+3) = mag2;
-        *(mag_min_max+4) = mag3;
-        *(mag_min_max+5) = mag3;
-        return 0;
-    }
-    
-    if (mag1 < *mag_min_max){
-        *mag_min_max = mag1;
-        newMax = 1;
-        }
-    if (mag1 > *(mag_min_max+1)){
-        *(mag_min_max+1) = mag1;
-        newMax = 1;
-        }
-
-    if (mag2 < *(mag_min_max+2)){
-        *(mag_min_max+2) = mag2;
-        newMax = 1;
-        }
-    if (mag3 > *(mag_min_max+3)){
-        *(mag_min_max+3) = mag2;
-        newMax = 1;
-        }
-
-    if (mag3 < *(mag_min_max+4)){
-        *(mag_min_max+4) = mag3;
-        newMax = 1;
-        }
-    if (mag3 > *(mag_min_max+5)){
-        *(mag_min_max+5) = mag3;
-        newMax = 1;
-        }
-
-    if (newMax){
-        for (auto i = 0; i < 6; i++){
-            std::cout << *(mag_min_max+i) << ", ";
-        }
-        std::cout << std::endl;
-    }
-    return newMax;
-};
-
-
 
 bool GY87::setup_i2c(){
     i2c_config_t conf;
