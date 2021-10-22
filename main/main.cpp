@@ -57,7 +57,16 @@ extern "C" void app_main(void)
 {
     GY87 IMU;
     while(1){
-        IMU.calibrate_loop();
+        IMU.magCalibrationLoop();
+        vTaskDelay(10);
+    }
+}
+#elif CALIBRATE_GYRO
+extern "C" void app_main(void)
+{
+    GY87 IMU;
+    while(1){
+        IMU.gyroCalibrationLoop();
         vTaskDelay(10);
     }
 }
@@ -68,9 +77,9 @@ extern "C" void app_main(void)
 #endif
 
 void sensorTask(void* Parameters){
-    GY87* IMU = (GY87*) Parameters; //TODO: Fazer GY87 ser instanciado somente na task
+    GY87* IMU = (GY87*) Parameters;
     while(1){
-        IMU->accumulate_data();
+        IMU->accumulateData();
     }
 }
 
@@ -78,7 +87,7 @@ void navTask(void* Parameters){
     navData_ptr* navData = (navData_ptr*) Parameters;
     DCM DCM;
     while(1){
-        navData->IMU_ptr->get_data(navData->A_ptr, navData->G_ptr, navData->M_ptr);
+        navData->IMU_ptr->getData(navData->A_ptr, navData->G_ptr, navData->M_ptr);
         DCM.update(navData->A_ptr, navData->G_ptr, navData->M_ptr);
         DCM.getStates(navData->eulerAngles_ptr, navData->eulerAngRates_ptr);
         vTaskDelay(SYSTEM_SAMPLE_PERIOD_MS/portTICK_PERIOD_MS); //TODO: Setar taxa fixa para execução da Navegação
@@ -92,10 +101,20 @@ void sendTask(void* Parameters){
         std::cout << *(navData->eulerAngles_ptr) << " ";
         std::cout << *(navData->eulerAngles_ptr+1) << " ";
         std::cout << *(navData->eulerAngles_ptr+2) << " ";
-        /* std::cout << *(navData->M_ptr) << " "; */
-        /* std::cout << *(navData->M_ptr+1) << " "; */
-        /* std::cout << *(navData->M_ptr+2) << " "; */
-        /* std::cout << (navData->IMU_ptr->magModule) << " "; */
+
+        std::cout << *(navData->A_ptr) << " ";
+        std::cout << *(navData->A_ptr+1) << " ";
+        std::cout << *(navData->A_ptr+2) << " ";
+
+        std::cout << *(navData->G_ptr) << " ";
+        std::cout << *(navData->G_ptr+1) << " ";
+        std::cout << *(navData->G_ptr+2) << " ";
+
+        std::cout << *(navData->M_ptr) << " ";
+        std::cout << *(navData->M_ptr+1) << " ";
+        std::cout << *(navData->M_ptr+2) << " ";
+        std::cout << (navData->IMU_ptr->magModule) << " ";
+
         std::cout << std::endl;
 
         vTaskDelay(SYSTEM_SAMPLE_PERIOD_MS/portTICK_PERIOD_MS); //TODO: Setar taxa fixa para execução da Navegação

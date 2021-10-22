@@ -1,11 +1,11 @@
 #include "GY87.h"
 #include "driver/i2c.h"
 #include "config.h"
-#include <math.h> 
 #include "gpio-handler.h"
+#include <math.h> 
 
-bool GY87::accumulate_data(){
-    if (read_data()){
+bool GY87::accumulateData(){
+    if (readData()){
         return 1;
     }
 
@@ -26,15 +26,15 @@ bool GY87::accumulate_data(){
     return 0;
 }
 
-bool GY87::get_data(float* A, float* G, float* M){
+bool GY87::getData(float* A, float* G, float* M){
     if (N_samples == 0){
         *A = A_raw[0]*GY87_ACCEL_SENS;
         *(A+1) = A_raw[1]*GY87_ACCEL_SENS;
         *(A+2) = A_raw[2]*GY87_ACCEL_SENS;
 
-        *G = G_raw[0]*GY87_GYRO_SENS;
-        *(G+1) = G_raw[1]*GY87_GYRO_SENS;
-        *(G+2) = G_raw[2]*GY87_GYRO_SENS;
+        *G = G_raw[0]*GY87_GYRO_SENS - gyroCal[0];
+        *(G+1) = G_raw[1]*GY87_GYRO_SENS - gyroCal[1];
+        *(G+2) = G_raw[2]*GY87_GYRO_SENS - gyroCal[2];
 
         *M = M_raw[0]*GY87_MAG_SENS - magCal[0];
         *(M+1) = M_raw[1]*GY87_MAG_SENS - magCal[1];
@@ -47,9 +47,9 @@ bool GY87::get_data(float* A, float* G, float* M){
     *(A+1) = A_raw_accum[1]*GY87_ACCEL_SENS/N_samples;
     *(A+2) = A_raw_accum[2]*GY87_ACCEL_SENS/N_samples;
 
-    *G = G_raw_accum[0]*GY87_GYRO_SENS/N_samples;
-    *(G+1) = G_raw_accum[1]*GY87_GYRO_SENS/N_samples;
-    *(G+2) = G_raw_accum[2]*GY87_GYRO_SENS/N_samples;
+    *G = G_raw_accum[0]*GY87_GYRO_SENS/N_samples - gyroCal[0];
+    *(G+1) = G_raw_accum[1]*GY87_GYRO_SENS/N_samples - gyroCal[1];
+    *(G+2) = G_raw_accum[2]*GY87_GYRO_SENS/N_samples - gyroCal[2];
 
     *M = M_raw_accum[0]*GY87_MAG_SENS/N_samples - magCal[0];
     *(M+1) = M_raw_accum[1]*GY87_MAG_SENS/N_samples - magCal[1];
@@ -57,12 +57,12 @@ bool GY87::get_data(float* A, float* G, float* M){
 
     magModule = sqrt((*M)*(*M) + (*(M+1))*(*(M+1)) + (*(M+2))*(*(M+2)));
 
-    clean_accum();
+    cleanAccum();
 
     return 0;
 }
 
-bool GY87::calibrate_mag(float *mag_min_max){
+bool GY87::calibrateMag(float *mag_min_max){
 
     uint8_t buffer[20];
     float magCal_temp[6] = {0};
@@ -129,12 +129,30 @@ bool GY87::calibrate_mag(float *mag_min_max){
     return newMax;
 };
 
-bool GY87::calibrate_loop(){
+bool GY87::gyroCalibrationLoop(){
+    float A_temp[3], G_temp[3], M_temp[3];
+
+    for (int i = 0; i < 100; i++){
+        accumulateData();
+    }
+    
+    getData(A_temp, G_temp, M_temp);
+
+    std::cout << G_temp[0] << ", ";
+    std::cout << G_temp[1] << ", ";
+    std::cout << G_temp[2] << ", ";
+    std::cout << 1 << ", ";
+    std::cout << 1 << ", ";
+    std::cout << 1 << std::endl;
+    return 0;
+}
+
+bool GY87::magCalibrationLoop(){
     static float mag_param[6] = {0};
     static uint8_t count = 0;
     static builtin_led Led;
 
-    if (calibrate_mag(&mag_param[0])){
+    if (calibrateMag(&mag_param[0])){
         count = 0;
     }
 
@@ -147,7 +165,7 @@ bool GY87::calibrate_loop(){
     return 0;
 }
 
-bool GY87::clean_accum(){
+bool GY87::cleanAccum(){
     A_raw_accum[0] = 0;
     A_raw_accum[1] = 0;
     A_raw_accum[2] = 0;
@@ -205,7 +223,7 @@ GY87::GY87(){
     write(&opt, 1, GY87_IMU_ADD, GY87_CONFIG_6_ADD);
 };
 
-bool GY87::read_data(){
+bool GY87::readData(){
     uint8_t buffer[20];
     esp_err_t read_OK = read(buffer, 20, GY87_IMU_ADD, GY87_IMU_DATA_ADD);
 

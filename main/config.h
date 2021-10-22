@@ -1,12 +1,15 @@
 #pragma once
+
 // Filter Control
 #define ALPHA                           0.3
 #define BETA                            0.5
 #define COMPENSATE                      0
+#define WMM_LOCALFIELD                  40, 0, -200
 
 // Application Control
 #define DEFAULT_MODE                    1
 #define CALIBRATE_MAG                   0
+#define CALIBRATE_GYRO                  0
 #define SHOULD_LOG                      1
 #define SYSTEM_SAMPLE_PERIOD_MS         100
 
@@ -50,8 +53,13 @@
 #define GY87_CONFIG_6_ADD               0X67
 #define GY87_CONFIG_6_OPT               1 // 0 delay
 #define GY87_IMU_DATA_ADD               0X3B // First accel data address
-#define GY87_ACCEL_SENS                 0.0000610352f // Accel sensivity
-#define GY87_GYRO_SENS                  0.0076335878f // Gyro sensivity
+#define GY87_ACCEL_SENS                 1.0/16384/1.05f // Accel sensivity
+#define GY87_GYRO_SENS                  1.0/131.0*DEG2RAD // Gyro sensivity
+#if CALIBRATE_GYRO == 1
+    #define GY87_GYRO_CAL                0, 0, 0, 1, 1, 1
+#else
+    #define GY87_GYRO_CAL                -0.0304047, 0.00966193, 0.0254938, 1, 1, 1
+#endif
 
 // MAG
 #define GY87_MAG_ADD                    0X0D
@@ -61,13 +69,13 @@
 #if CALIBRATE_MAG == 1
     #define GY87_MAG_CAL                0, 0, 0, 1, 1, 1
 #else
-    #define GY87_MAG_CAL                291.333, 771.125, 886.458, 1, 1, 1
+    #define GY87_MAG_CAL                291.833, 774.583, 863.708, 1, 1, 1
 #endif
 
 // Constants
 #define GY87_TEMP_SENS                  1 // Temp sensivity
 #define GRAVITY                         9.80665 // Gravity
-#define WMM_LOCALFIELD                  40, 0, -200
+#define DEG2RAD                         0.0174532925f //PI/180
 
 // GPIO
 #define BUILTIN_LED                     GPIO_NUM_2

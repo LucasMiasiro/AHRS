@@ -2,7 +2,6 @@
 #include <math.h> 
 #include "esp_dsp.h"
 
-
 float norm2(float *in, const int len){
     float norm = 0;
     dsps_dotprod_f32_ae32(in, in, &norm, len);
@@ -40,9 +39,5 @@ void quatProd(float *in1, float *in2, float *out){
 }
 
 void quatProdConst(float *in, float K, float *out){
-    /* for (int i = 0; i < 4; i++){ */
-    /*     *(out+i) = *(in+i) * K; */
-    /* } */
     dsps_addc_f32_ae32(in, out, 4, K, 1, 1);
 }
-

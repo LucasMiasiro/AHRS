@@ -11,7 +11,7 @@ void DCM::getStates(float *eulerAngles, float *eulerRates){
 
     eulerAngles[1] = -asin(2*(q[1]*q[3] + q[0]*q[2])); //Theta
 
-    eulerAngles[0] = atan2(2.0*(q[1]*q[2] - q[0]*q[3]),
+    eulerAngles[2] = atan2(2.0*(q[1]*q[2] - q[0]*q[3]),
                             2.0*(q[0]*q[0] + q[1]*q[1]) - 1); //Psi
 
     //TODO: Implementar eulerRates
@@ -19,7 +19,6 @@ void DCM::getStates(float *eulerAngles, float *eulerRates){
 
 void DCM::update(float* A, float* G, float* M){
 
-    //TODO: normalizar acelerômetro?
     initializeVariables(A, G, M);
 
     gyroPred(G);
@@ -38,7 +37,7 @@ void DCM::filterFusion(){
 
 void DCM::magAccelPred(float* A, float* M){
     matProd_4x6x1(&JT[0][0], f, buf_q);
-    mu_t = ALPHA*norm2(q_dot_G, 4)*SYSTEM_SAMPLE_PERIOD_MS/1000;
+    mu_t = norm2(q_dot_G, 4)*ALPHA*SYSTEM_SAMPLE_PERIOD_MS/1000;
     quatProdConst(q_AM, -mu_t/norm2(buf_q, 4), buf2_q);
     quatAdd(q, buf2_q, q_AM);
 }
@@ -50,6 +49,7 @@ void DCM::initializeVariables(float* A, float *G, float *M){
 
 #if COMPENSATE
     softIronCompensation(M);
+    gyroBiasDriftCompensation(G);
 #endif
     initializeAccelTransposedJacobian(A, &JT[0][0], f);
     initializeMagTransposedJacobian(M, &JT[3][0], f+3); //TODO: checar se endereço está correto e fazendo sentido
@@ -90,8 +90,10 @@ void DCM::initializeMagTransposedJacobian(float* M, float *Matrix, float* f){
 
     f[0] =  2.0*(0.5f - q[2]*q[2] - q[3]*q[3])*earthMagField[0]
             + 2.0*(q[1]*q[3] - q[0]*q[2])*earthMagField[2] - M[0];
+
     f[1] =  2.0*(q[1]*q[2] - q[0]*q[3])*earthMagField[0]
             + 2.0*(q[0]*q[1] + q[2]*q[3])*earthMagField[2] - M[1];
+
     f[2] =  2.0*(q[0]*q[2] + q[1]*q[3])*earthMagField[0]
             + 2.0*(0.5 - q[1]*q[1] - q[2]*q[2])*earthMagField[2] - M[2];
 }
