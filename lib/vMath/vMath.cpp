@@ -9,6 +9,13 @@ float norm2(float *in, const int len){
     return sqrt(norm);
 }
 
+void quatConj(float *in, float *out){
+    out[0] = in[0];
+    out[1] = -in[1];
+    out[2] = -in[2];
+    out[3] = -in[3];
+}
+
 void matProd_4x6x1(float *in1, float *in2, float *out){
     dspm_mult_f32_ae32(in1, in2, out, 4, 6, 1);
 }

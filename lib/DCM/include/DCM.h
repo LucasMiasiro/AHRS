@@ -17,6 +17,7 @@ private:
     float buf_q[4] = {0};
     float buf2_q[4] = {0};
     float G_q[4] = {0};
+    float M_q[4] = {0};
     float earthMagField[3] = {WMM_LOCALFIELD};
 
     void initializeAccelTransposedJacobian(float *, float *, float *);
@@ -25,8 +26,11 @@ private:
     void gyroPred(float*);
     void initializeVariables(float*, float*, float*);
     void filterFusion();
+    void softIronCompensation(float *);
+    void gyroBiasDriftCompensation(float *);
 
 public:
     DCM();
-    void update(float*, float*, float*, float*, float*);
+    void update(float*, float*, float*);
+    void getStates(float*, float*);
 };

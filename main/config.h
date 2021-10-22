@@ -2,12 +2,13 @@
 // Filter Control
 #define ALPHA                           0.3
 #define BETA                            0.5
+#define COMPENSATE                      0
 
 // Application Control
 #define DEFAULT_MODE                    1
 #define CALIBRATE_MAG                   0
 #define SHOULD_LOG                      1
-#define SYSTEM_SAMPLE_PERIOD_MS         10
+#define SYSTEM_SAMPLE_PERIOD_MS         100
 
 #if SHOULD_LOG
     #include <iostream>
@@ -66,7 +67,7 @@
 // Constants
 #define GY87_TEMP_SENS                  1 // Temp sensivity
 #define GRAVITY                         9.80665 // Gravity
-#define WMM_LOCALFIELD                  0.0, 0.0, 0.0
+#define WMM_LOCALFIELD                  40, 0, -200
 
 // GPIO
 #define BUILTIN_LED                     GPIO_NUM_2

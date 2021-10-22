@@ -79,8 +79,8 @@ void navTask(void* Parameters){
     DCM DCM;
     while(1){
         navData->IMU_ptr->get_data(navData->A_ptr, navData->G_ptr, navData->M_ptr);
-        DCM.update(navData->A_ptr, navData->G_ptr, navData->M_ptr,
-                navData->eulerAngles_ptr, navData->eulerAngRates_ptr);
+        DCM.update(navData->A_ptr, navData->G_ptr, navData->M_ptr);
+        DCM.getStates(navData->eulerAngles_ptr, navData->eulerAngRates_ptr);
         vTaskDelay(SYSTEM_SAMPLE_PERIOD_MS/portTICK_PERIOD_MS); //TODO: Setar taxa fixa para execução da Navegação
     }
 }
@@ -88,16 +88,14 @@ void navTask(void* Parameters){
 void sendTask(void* Parameters){
     navData_ptr* navData = (navData_ptr*) Parameters;
     while(1){
-        // std::cout << *(navData->A_ptr) << " ";
-        // std::cout << *(navData->A_ptr+1) << " ";
-        // std::cout << *(navData->A_ptr+2) << " ";
-        // std::cout << *(navData->G_ptr) << " ";
-        // std::cout << *(navData->G_ptr+1) << " ";
-        // std::cout << *(navData->G_ptr+2) << " ";
-        std::cout << *(navData->M_ptr) << " ";
-        std::cout << *(navData->M_ptr+1) << " ";
-        std::cout << *(navData->M_ptr+2) << " ";
-        std::cout << (navData->IMU_ptr->magModule) << " ";
+
+        std::cout << *(navData->eulerAngles_ptr) << " ";
+        std::cout << *(navData->eulerAngles_ptr+1) << " ";
+        std::cout << *(navData->eulerAngles_ptr+2) << " ";
+        /* std::cout << *(navData->M_ptr) << " "; */
+        /* std::cout << *(navData->M_ptr+1) << " "; */
+        /* std::cout << *(navData->M_ptr+2) << " "; */
+        /* std::cout << (navData->IMU_ptr->magModule) << " "; */
         std::cout << std::endl;
 
         vTaskDelay(SYSTEM_SAMPLE_PERIOD_MS/portTICK_PERIOD_MS); //TODO: Setar taxa fixa para execução da Navegação

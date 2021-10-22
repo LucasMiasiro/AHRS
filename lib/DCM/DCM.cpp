@@ -5,9 +5,21 @@
 #include "vMath.h"
 #include <math.h> 
 
-void DCM::update(float* A, float* G, float* M,
-        float* eulerAngles, float* eulerAngRates){
+void DCM::getStates(float *eulerAngles, float *eulerRates){
+    eulerAngles[0] = atan2(2.0*(q[2]*q[3] - q[0]*q[1]),
+                            2.0*(q[0]*q[0] + q[3]*q[3]) - 1); //Phi
 
+    eulerAngles[1] = -asin(2*(q[1]*q[3] + q[0]*q[2])); //Theta
+
+    eulerAngles[0] = atan2(2.0*(q[1]*q[2] - q[0]*q[3]),
+                            2.0*(q[0]*q[0] + q[1]*q[1]) - 1); //Psi
+
+    //TODO: Implementar eulerRates
+}
+
+void DCM::update(float* A, float* G, float* M){
+
+    //TODO: normalizar acelerômetro?
     initializeVariables(A, G, M);
 
     gyroPred(G);
@@ -36,8 +48,28 @@ void DCM::initializeVariables(float* A, float *G, float *M){
     G_q[2] = G[1];
     G_q[3] = G[2];
 
+#if COMPENSATE
+    softIronCompensation(M);
+#endif
     initializeAccelTransposedJacobian(A, &JT[0][0], f);
     initializeMagTransposedJacobian(M, &JT[3][0], f+3); //TODO: checar se endereço está correto e fazendo sentido
+}
+
+void DCM::softIronCompensation(float *M){
+    M_q[0] = 0;
+    M_q[1] = M[0];
+    M_q[2] = M[1];
+    M_q[3] = M[2];
+
+    quatConj(q, buf_q);
+    quatProd(M_q, buf_q, buf2_q);
+    quatProd(q, buf2_q, buf_q);
+
+    earthMagField[1] = sqrt(buf_q[1]*buf_q[1] + buf_q[2]+buf_q[2]);
+    earthMagField[2] = buf_q[3];
+}
+
+void DCM::gyroBiasDriftCompensation(float *G){
 }
 
 void DCM::initializeMagTransposedJacobian(float* M, float *Matrix, float* f){
