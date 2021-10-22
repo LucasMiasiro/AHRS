@@ -1,0 +1,13 @@
+idf_component_register(SRCS "vMath.cpp"
+                    INCLUDE_DIRS "include" "../../main"
+                    # "../esp-dsp/modules/dotprod/include"
+                    # "../esp-dsp/modules/matrix/include"
+                    # "../esp-dsp/modules/math/include"
+                    # "../esp-dsp/modules/math/add/include"
+                    # "../esp-dsp/modules/math/addc/include"
+                    # # "../esp-dsp/modules/math/mul/include"
+                    # "../esp-dsp/modules/math/mulc/include"
+                    # "../esp-dsp/modules/math/sqrt/include"
+                    # "../esp-dsp/modules/math/sub/include"
+                    "../esp-dsp/modules/common/include"
+                    REQUIRES esp-dsp)

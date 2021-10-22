@@ -4,7 +4,7 @@
 #include "main.h"
 #include "config.h"
 #include "GY87.h"
-// #include "esp_dsp.h"
+#include "DCM.h"
 
 #if DEFAULT_MODE
 extern "C" void app_main(void)
@@ -68,7 +68,7 @@ extern "C" void app_main(void)
 #endif
 
 void sensorTask(void* Parameters){
-    GY87* IMU = (GY87*) Parameters;
+    GY87* IMU = (GY87*) Parameters; //TODO: Fazer GY87 ser instanciado somente na task
     while(1){
         IMU->accumulate_data();
     }
@@ -76,8 +76,11 @@ void sensorTask(void* Parameters){
 
 void navTask(void* Parameters){
     navData_ptr* navData = (navData_ptr*) Parameters;
+    DCM DCM;
     while(1){
         navData->IMU_ptr->get_data(navData->A_ptr, navData->G_ptr, navData->M_ptr);
+        DCM.update(navData->A_ptr, navData->G_ptr, navData->M_ptr,
+                navData->eulerAngles_ptr, navData->eulerAngRates_ptr);
         vTaskDelay(SYSTEM_SAMPLE_PERIOD_MS/portTICK_PERIOD_MS); //TODO: Setar taxa fixa para execução da Navegação
     }
 }
