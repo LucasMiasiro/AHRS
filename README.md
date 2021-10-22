@@ -1,2 +1,1 @@
 - INS for attitude, velocity and position estimation
-- Should run on an ESP32 board
