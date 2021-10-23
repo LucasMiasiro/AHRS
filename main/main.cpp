@@ -103,10 +103,10 @@ void sendTask(void* Parameters){
 
         #if SEND_SERIAL
         serialLogger::logFloat(navData->eulerAngles_ptr, 3, 1/DEG2RAD, "ATT");
-        serialLogger::logFloat(navData->A_ptr, 3, "A");
-        serialLogger::logFloat(navData->G_ptr, 3, "G");
-        serialLogger::logFloat(navData->M_ptr, 3, "M");
-        serialLogger::logFloat(&navData->IMU_ptr->magModule, 1, "MM");
+        serialLogger::logFloat(navData->A_ptr, 3, "ACCEL");
+        serialLogger::logFloat(navData->G_ptr, 3, "GYRO");
+        serialLogger::logFloat(navData->M_ptr, 3, "MAG");
+        serialLogger::logFloat(&navData->IMU_ptr->magModule, 1, "MMOD");
         serialLogger::blank_lines(1);
         #endif
 

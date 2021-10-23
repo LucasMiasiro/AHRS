@@ -2,18 +2,18 @@ from matplotlib import pyplot as plt, rcParams
 rcParams['grid.linewidth'] = 1.5
 plt.style.use('seaborn-darkgrid')
 from mpl_toolkits.mplot3d import Axes3D
-from scipy.spatial.transform import Rotation as R
 import pythonUtils
 #-------------------------------------------------------------------
 
-dataHeader = "ATT"
+dataHeader = "MAG"
 port = '/dev/ttyUSB0'
 baudRate = 115200
 
+color = 'royalblue'
+alpha = 0.5
 origin = [0, 0, 0]
-l = 1
-colors = ['tomato', 'mediumspringgreen', 'royalblue']
-axisLimits = [-1.2, 1.2]
+l = 300
+axisLimits = [-600, 600]
 plotNEU = True
 figSize = (7, 7)
 
@@ -32,25 +32,23 @@ ax.set_zlim(axisLimits)
 v = [[l, 0, 0],
     [0, l, 0],
     [0, 0, l]]
-axis = [0, 0, 0]
 
 def vector2Line(vector, origin):
     return [[origin_i, origin_i + vector_i] for origin_i, vector_i in zip(origin, vector)]
 
-for i, v_i in enumerate(v):
-    axis[i] = plt.plot(*vector2Line(v_i, origin), c = colors[i], marker = 'o')
+mx, my, mz = [], [], []
+axis = plt.plot(mx, my, mz, ls = '', color = color, marker = 'o', alpha = alpha)
 
 if plotNEU:
     for i, v_i in enumerate(v):
         plt.plot(*vector2Line(v_i, origin), c = 'black')
 
 while True:
-    att = pythonUtils.getData(sp, dataHeader = dataHeader)
-    if att is not None:
-        att.reverse()
-        rotation = R.from_euler('zyx', att, degrees = True)
-        for i, v_i in enumerate(v):
-            v_i = rotation.apply(v_i)
-            axis[i][0].set_data_3d(*vector2Line(v_i, origin))
+    mag = pythonUtils.getData(sp, dataHeader = dataHeader)
+    if mag is not None:
+        mx.append(mag[0])
+        my.append(mag[1])
+        mz.append(mag[2])
+        axis[0].set_data_3d(mx, my, mz)
         fig.canvas.draw()
         fig.canvas.flush_events()

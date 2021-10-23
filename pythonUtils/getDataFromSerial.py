@@ -1,0 +1,31 @@
+import serial #Library: pyserial
+
+def checkHeader(dataHeader, lineString):
+    if dataHeader in lineString:
+        return True
+    return False
+
+def getData(sp, dataHeader = "ATT", lineEnd = "\n"):
+    EOL = False
+    lineString = ''
+    try:
+        while not EOL:
+            data = sp.read(1)
+            if data:
+                char = data.decode('ascii')
+                EOL = (char == lineEnd)
+                if not EOL:
+                    lineString += char
+            else:
+                lineString = None
+
+        if checkHeader(dataHeader, lineString):
+            lineSplit = lineString.split(' ')
+            dataArray = [float(x) for x in lineSplit[1:-1]]
+            print(dataArray)
+            return dataArray
+        return None
+
+    except Exception as e:
+        print(e)
+        return None

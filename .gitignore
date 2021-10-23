@@ -3,3 +3,4 @@ build/*
 *cache/
 */docs/*
 *.vim
+*__pycache__*
