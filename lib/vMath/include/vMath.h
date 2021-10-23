@@ -1,5 +1,6 @@
 #pragma once
 
+void normalizeQuat(float *q);
 float norm2(float *in, const int len);
 void quatAdd(float*, float*, float*);
 void quatProd(float*, float*, float*);

@@ -8,7 +8,7 @@ private:
     float q_G[4] = {0};
     float q_dot_G[4] = {0};
     float q_AM[4] = {0};
-    float JT[4][6]; 
+    float JT[4][6] = {{0}}; 
     float f[6]; 
     float grad_f[4];
     float mu_t = 0;
@@ -20,8 +20,8 @@ private:
     float M_q[4] = {0};
     float earthMagField[3] = {WMM_LOCALFIELD};
 
-    void initializeAccelTransposedJacobian(float *, float *, float *);
-    void initializeMagTransposedJacobian(float *, float *, float *);
+    void initializeAccelTransposedJacobian(float *, float[4][6], float *);
+    void initializeMagTransposedJacobian(float *, float[4][6], float *);
     void magAccelPred(float*, float*);
     void gyroPred(float*);
     void initializeVariables(float*, float*, float*);
@@ -33,4 +33,5 @@ public:
     DCM();
     void update(float*, float*, float*);
     void getStates(float*, float*);
+    void initializeFilter();
 };

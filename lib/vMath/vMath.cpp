@@ -1,11 +1,20 @@
 #include "vMath.h"
+#include "config.h"
 #include <math.h> 
 #include "esp_dsp.h"
 
+void normalize(float *q, int len){
+    dsps_mulc_f32_ae32(q, q, len, 1/norm2(q, len), 1, 1);
+}
+
+void normalizeQuat(float *q){
+    quatProdConst(q, 1/norm2(q, 4), q); //TODO: checar se não é problemático
+}
+
 float norm2(float *in, const int len){
-    float norm = 0;
+    float norm;
     dsps_dotprod_f32_ae32(in, in, &norm, len);
-    return sqrt(norm);
+    return norm = sqrt(norm);
 }
 
 void quatConj(float *in, float *out){
@@ -39,5 +48,5 @@ void quatProd(float *in1, float *in2, float *out){
 }
 
 void quatProdConst(float *in, float K, float *out){
-    dsps_addc_f32_ae32(in, out, 4, K, 1, 1);
+    dsps_mulc_f32_ae32(in, out, 4, K, 1, 1);
 }

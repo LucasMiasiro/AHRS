@@ -1,10 +1,10 @@
 #pragma once
 
 // Filter Control
-#define ALPHA                           0.3
+#define ALPHA                           100
 #define BETA                            0.5
-#define COMPENSATE                      0
-#define WMM_LOCALFIELD                  40, 0, -200
+#define COMPENSATE                      1
+#define WMM_LOCALFIELD                  0.8660, 0, 0.5
 
 // Application Control
 #define DEFAULT_MODE                    1
@@ -76,6 +76,7 @@
 #define GY87_TEMP_SENS                  1 // Temp sensivity
 #define GRAVITY                         9.80665 // Gravity
 #define DEG2RAD                         0.0174532925f //PI/180
+#define NORM_TOL                        0.000001
 
 // GPIO
 #define BUILTIN_LED                     GPIO_NUM_2
