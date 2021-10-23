@@ -3,6 +3,7 @@
 #include "config.h"
 #include "gpio-handler.h"
 #include <math.h> 
+#include "serial-logger.h"
 
 bool GY87::accumulateData(){
     if (readData()){

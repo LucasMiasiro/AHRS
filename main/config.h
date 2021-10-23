@@ -5,22 +5,29 @@
 #define GYRO_DRIFT                      0.2
 #define COMPENSATE                      1
 #define WMM_LOCALFIELD                  0.8660f, 0.0f, 0.5f
+#define R_0                             0.0f, 0.0f, 1.0f
+#define ANG_0                           0.0f
 
 // Application Control
 #define DEFAULT_MODE                    1
 #define CALIBRATE_MAG                   0
 #define CALIBRATE_GYRO                  0
-#define SHOULD_LOG                      1
 #define SYSTEM_SAMPLE_PERIOD_MS         100
 
+#define SHOULD_LOG                      1
 #if SHOULD_LOG
-    #include <iostream>
     #define LOG_MAIN                    1
     #define LOG_GY87                    1
+    #define LOG_DCM                     1
+    #define SEND_SERIAL                 1
 #else
     #define LOG_MAIN                    0
     #define LOG_GY87                    0
+    #define LOG_DCM                     0
+    #define SEND_SERIAL                 0
 #endif
+
+// _________________________________________________________________________
 
 // I2C Param
 #define GY87_SDA_IO                     21
@@ -69,7 +76,7 @@
 #if CALIBRATE_MAG == 1
     #define GY87_MAG_CAL                0, 0, 0, 1, 1, 1
 #else
-    #define GY87_MAG_CAL                291.833, 774.583, 863.708, 1, 1, 1
+    #define GY87_MAG_CAL                275.292, 776, 853.542, 1, 1, 1
 #endif
 
 // Constants

@@ -36,5 +36,31 @@ void ruler()
     std::cout << "--------------------" << std::endl;
 }
 
+void logFloat(const float *dataPtr, const int lenData, const int K, const char header[]){
+    std::cout << header << " ";
+    for (int j = 0; j < lenData; j++){
+        std::cout << *(dataPtr + j)*K << " ";
+    }
+    std::cout << std::endl;
+};
+
+void logFloat(const float *dataPtr, const int lenData, const char header[]){
+    std::cout << header << " ";
+    for (int j = 0; j < lenData; j++){
+        std::cout << *(dataPtr + j) << " ";
+    }
+    std::cout << std::endl;
+};
+
+void logFloat(const float *dataPtrArray[], const int lenArray, const int lenData, const char header[]){
+    std::cout << header << " ";
+    for (int i = 0; i < lenArray; i++){
+        for (int j = 0; j < lenData; j++){
+            std::cout << *(dataPtrArray[i]  + j) << " ";
+        }
+    }
+    std::cout << std::endl;
+};
+
 
 };

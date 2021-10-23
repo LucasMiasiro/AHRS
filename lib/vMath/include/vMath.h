@@ -1,5 +1,6 @@
 #pragma once
 
+void quat2Euler(float *q, float *euler_out);
 void normalize(float *, int);
 void normalizeQuat(float *q);
 float norm2(float *in, const int len);

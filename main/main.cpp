@@ -101,32 +101,14 @@ void sendTask(void* Parameters){
     navData_ptr* navData = (navData_ptr*) Parameters;
     while(1){
 
-        std::cout << "ATT ";
-        std::cout << *(navData->eulerAngles_ptr)/DEG2RAD << " ";
-        std::cout << *(navData->eulerAngles_ptr+1)/DEG2RAD << " ";
-        std::cout << *(navData->eulerAngles_ptr+2)/DEG2RAD << " ";
-        std::cout << std::endl;
-
-        std::cout << "A ";
-        std::cout << *(navData->A_ptr) << " ";
-        std::cout << *(navData->A_ptr+1) << " ";
-        std::cout << *(navData->A_ptr+2) << " ";
-        std::cout << std::endl;
-
-        std::cout << "G ";
-        std::cout << *(navData->G_ptr) << " ";
-        std::cout << *(navData->G_ptr+1) << " ";
-        std::cout << *(navData->G_ptr+2) << " ";
-        std::cout << std::endl;
-
-        std::cout << "M ";
-        std::cout << *(navData->M_ptr) << " ";
-        std::cout << *(navData->M_ptr+1) << " ";
-        std::cout << *(navData->M_ptr+2) << " ";
-        std::cout << (navData->IMU_ptr->magModule) << " ";
-        std::cout << std::endl;
-
-        std::cout << "----------------------------------"<<" \n";
+        #if SEND_SERIAL
+        serialLogger::logFloat(navData->eulerAngles_ptr, 3, 1/DEG2RAD, "ATT");
+        serialLogger::logFloat(navData->A_ptr, 3, "A");
+        serialLogger::logFloat(navData->G_ptr, 3, "G");
+        serialLogger::logFloat(navData->M_ptr, 3, "M");
+        serialLogger::logFloat(&navData->IMU_ptr->magModule, 1, "MM");
+        serialLogger::blank_lines(1);
+        #endif
 
         vTaskDelay(SYSTEM_SAMPLE_PERIOD_MS/portTICK_PERIOD_MS); //TODO: Setar taxa fixa para execução da Navegação
     }

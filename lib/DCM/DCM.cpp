@@ -3,34 +3,40 @@
 
 #include "vMath.h"
 #include <math.h> 
+#include "serial-logger.h"
 
 void DCM::getStates(float *eulerAngles, float *eulerRates){
-    eulerAngles[0] = atan2(2.0*(q[2]*q[3] - q[0]*q[1]),
-                            2.0*(q[0]*q[0] + q[3]*q[3]) - 1); //Phi
-
-    eulerAngles[1] = -asin(2*(q[1]*q[3] + q[0]*q[2])); //Theta
-
-    eulerAngles[2] = atan2(2.0*(q[1]*q[2] - q[0]*q[3]),
-                            2.0*(q[0]*q[0] + q[1]*q[1]) - 1); //Psi
+    quat2Euler(q, eulerAngles);
 }
 
 void DCM::update(float* A, float* G, float* M){
     initializeVariables(A, G, M);
 
+#if LOG_DCM
+    const float *ptrArray[] = {A_q, G_q, M_q};
+    serialLogger::logFloat(ptrArray, 3, 4, "Q_IN");
+#endif
+
     gyroPred();
     magAccelPred();
+
+#if LOG_DCM
+    serialLogger::logFloat(q_dot_G, 4, "QDOTG");
+    serialLogger::logFloat(f, 6, "F");
+    serialLogger::logFloat(grad_f_normalized, 6, "GRAD_F");
+#endif
 
     filterFusion();
 }
 
 void DCM::initializeFilter(){
-    const float r[3] = {0, 0, 1};
-    const float psi = 0;
+    const float r[3] = {R_0};
+    const float ang = ANG_0;
 
-    q[0] = cos(psi/2);
-    q[1] = -r[0]*sin(psi/2);
-    q[2] = -r[1]*sin(psi/2);
-    q[3] = -r[2]*sin(psi/2);
+    q[0] = cos(ang/2);
+    q[1] = -r[0]*sin(ang/2);
+    q[2] = -r[1]*sin(ang/2);
+    q[3] = -r[2]*sin(ang/2);
 
     normalizeQuat(q);
 }
@@ -84,8 +90,13 @@ void DCM::softIronCompensation(){
     quatProd(M_q, buf_q, buf2_q);
     quatProd(q, buf2_q, buf_q);
 
-    earthMagField[0] = sqrt(buf_q[1]*buf_q[1] + buf_q[2]+buf_q[2]);
+    earthMagField[0] = sqrt(buf_q[1]*buf_q[1] + buf_q[2]*buf_q[2]);
     earthMagField[2] = buf_q[3];
+
+#if LOG_DCM
+    serialLogger::logFloat(buf_q, 4, "MROT");
+    serialLogger::logFloat(earthMagField, 3, "EMF");
+#endif
 }
 
 void DCM::gyroBiasDriftCompensation(float *G){

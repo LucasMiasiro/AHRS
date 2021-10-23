@@ -3,6 +3,20 @@
 #include <math.h> 
 #include "esp_dsp.h"
 
+
+void quat2Euler(float *q, float *euler_out){
+    //Phi
+    euler_out[0] = atan2(2.0*(q[2]*q[3] - q[0]*q[1]),
+                            2.0*(q[0]*q[0] + q[3]*q[3]) - 1);
+
+    //Theta
+    euler_out[1] = -asin(2*(q[1]*q[3] + q[0]*q[2]));
+
+    //Psi
+    euler_out[2] = atan2(2.0*(q[1]*q[2] - q[0]*q[3]),
+                            2.0*(q[0]*q[0] + q[1]*q[1]) - 1);
+}
+
 void normalize(float *in, int len){
     dsps_mulc_f32_ae32(in, in, len, 1/norm2(in, len), 1, 1);
 }
