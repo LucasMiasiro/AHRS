@@ -44,6 +44,15 @@ void logFloat(const float *dataPtr, const int lenData, const int K, const char h
     std::cout << std::endl;
 };
 
+void logFloat(const float *dataPtr, const int lenData,
+            const char header[], const char separator[]){
+    std::cout << header << " ";
+    for (int j = 0; j < lenData; j++){
+        std::cout << *(dataPtr + j) << separator;
+    }
+    std::cout << std::endl;
+};
+
 void logFloat(const float *dataPtr, const int lenData, const char header[]){
     std::cout << header << " ";
     for (int j = 0; j < lenData; j++){

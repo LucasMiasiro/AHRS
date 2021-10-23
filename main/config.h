@@ -76,7 +76,7 @@
 #if CALIBRATE_MAG == 1
     #define GY87_MAG_CAL                0, 0, 0, 1, 1, 1
 #else
-    #define GY87_MAG_CAL                275.292, 776, 853.542, 1, 1, 1
+    #define GY87_MAG_CAL                111.667, 397.667, 270.5, 1.02449, 1.01186, 0.964651
 #endif
 
 // Constants
