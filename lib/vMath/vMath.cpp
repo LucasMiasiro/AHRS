@@ -3,12 +3,12 @@
 #include <math.h> 
 #include "esp_dsp.h"
 
-void normalize(float *q, int len){
-    dsps_mulc_f32_ae32(q, q, len, 1/norm2(q, len), 1, 1);
+void normalize(float *in, int len){
+    dsps_mulc_f32_ae32(in, in, len, 1/norm2(in, len), 1, 1);
 }
 
 void normalizeQuat(float *q){
-    quatProdConst(q, 1/norm2(q, 4), q); //TODO: checar se não é problemático
+    quatProdConst(q, 1/norm2(q, 4), q);
 }
 
 float norm2(float *in, const int len){

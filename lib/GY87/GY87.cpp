@@ -56,9 +56,6 @@ bool GY87::getData(float* A, float* G, float* M){
     *(M+2) = M_raw_accum[2]*GY87_MAG_SENS/N_samples - magCal[2];
 
     magModule = sqrt((*M)*(*M) + (*(M+1))*(*(M+1)) + (*(M+2))*(*(M+2)));
-    *M = *M/magModule;
-    *(M+1) = *(M+1)/magModule;
-    *(M+2) = *(M+2)/magModule;
 
     cleanAccum();
 

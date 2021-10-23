@@ -3,7 +3,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-namespace log{
+namespace serialLogger{
 
 void log_example()
 {

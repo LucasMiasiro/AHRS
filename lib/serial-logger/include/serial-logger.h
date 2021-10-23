@@ -1,5 +1,5 @@
 #pragma once
-namespace log{
+namespace serialLogger{
 void log_example();
 void header();
 void blank_lines(int);

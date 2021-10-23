@@ -1,10 +1,10 @@
 #pragma once
 
 // Filter Control
-#define ALPHA                           100
-#define BETA                            0.5
+#define GYRO_ERROR                      2
+#define GYRO_DRIFT                      0.2
 #define COMPENSATE                      1
-#define WMM_LOCALFIELD                  0.8660, 0, 0.5
+#define WMM_LOCALFIELD                  0.8660f, 0.0f, 0.5f
 
 // Application Control
 #define DEFAULT_MODE                    1

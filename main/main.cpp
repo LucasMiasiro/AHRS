@@ -24,7 +24,7 @@ extern "C" void app_main(void)
 
     vTaskDelay(1000/portTICK_PERIOD_MS);
     #if LOG_MAIN
-    log::header();
+    serialLogger::header();
     #endif
 
     xTaskCreatePinnedToCore(sensorTask,
@@ -34,6 +34,8 @@ extern "C" void app_main(void)
                             1,
                             &sensorTask_h,
                             1);
+
+    vTaskDelay(SYSTEM_SAMPLE_PERIOD_MS/portTICK_PERIOD_MS);
 
     xTaskCreatePinnedToCore(navTask,
                             "Navigation Task",
@@ -100,9 +102,9 @@ void sendTask(void* Parameters){
     while(1){
 
         std::cout << "ATT ";
-        std::cout << *(navData->eulerAngles_ptr) << " ";
-        std::cout << *(navData->eulerAngles_ptr+1) << " ";
-        std::cout << *(navData->eulerAngles_ptr+2) << " ";
+        std::cout << *(navData->eulerAngles_ptr)/DEG2RAD << " ";
+        std::cout << *(navData->eulerAngles_ptr+1)/DEG2RAD << " ";
+        std::cout << *(navData->eulerAngles_ptr+2)/DEG2RAD << " ";
         std::cout << std::endl;
 
         std::cout << "A ";
