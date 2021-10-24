@@ -5,7 +5,7 @@ def checkHeader(dataHeader, lineString):
         return True
     return False
 
-def getData(sp, dataHeader = "ATT", lineEnd = "\n"):
+def getData(sp, dataHeader = "ATT", lineEnd = "\n", expectedSize = 3):
     EOL = False
     lineString = ''
     try:
@@ -22,6 +22,8 @@ def getData(sp, dataHeader = "ATT", lineEnd = "\n"):
         if checkHeader(dataHeader, lineString):
             lineSplit = lineString.split(' ')
             dataArray = [float(x) for x in lineSplit[1:-1]]
+            if len(dataArray) != expectedSize:
+                return None
             print(dataArray)
             return dataArray
         return None

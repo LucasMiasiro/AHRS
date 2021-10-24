@@ -9,21 +9,28 @@
 #define ANG_0                           0.0f
 
 // Application Control
+#define SYSTEM_SAMPLE_PERIOD_MS         100
 #define DEFAULT_MODE                    1
+#if DEFAULT_MODE
 #define CALIBRATE_MAG                   0
 #define CALIBRATE_GYRO                  0
-#define SYSTEM_SAMPLE_PERIOD_MS         100
+#else
+#define CALIBRATE_MAG                   1
+#define CALIBRATE_GYRO                  0
+#endif
 
 #define SHOULD_LOG                      1
 #if SHOULD_LOG
     #define LOG_MAIN                    1
-    #define LOG_GY87                    1
-    #define LOG_DCM                     1
+    #define LOG_GY87                    0
+    #define LOG_DCM                     0
+    #define LOG_TIMER                   0
     #define SEND_SERIAL                 1
 #else
     #define LOG_MAIN                    0
     #define LOG_GY87                    0
     #define LOG_DCM                     0
+    #define LOG_TIMER                   0
     #define SEND_SERIAL                 0
 #endif
 
@@ -62,7 +69,7 @@
 #define GY87_IMU_DATA_ADD               0X3B // First accel data address
 #define GY87_ACCEL_SENS                 1.0/16384/1.05f // Accel sensivity
 #define GY87_GYRO_SENS                  1.0/131.0*DEG2RAD // Gyro sensivity
-#if CALIBRATE_GYRO == 1
+#if CALIBRATE_GYRO
     #define GY87_GYRO_CAL                0, 0, 0, 1, 1, 1
 #else
     #define GY87_GYRO_CAL                -0.0304047, 0.00966193, 0.0254938, 1, 1, 1
@@ -73,17 +80,16 @@
 #define GY87_CONFIG_2_ADD               0X09
 #define GY87_CONFIG_2_OPT               0XCD // Continuous Measurement Mode, Output Rate, Range, Oversampling Rate
 #define GY87_MAG_SENS                   0.0833333333f // Mag sensivity
-#if CALIBRATE_MAG == 1
+#if CALIBRATE_MAG
     #define GY87_MAG_CAL                0, 0, 0, 1, 1, 1
 #else
-    #define GY87_MAG_CAL                111.667, 397.667, 270.5, 1.02449, 1.01186, 0.964651
+    #define GY87_MAG_CAL                -74.1667, -188.833, -108.958, 1.02326, 1.01448, 0.963317
 #endif
 
 // Constants
 #define GY87_TEMP_SENS                  1 // Temp sensivity
 #define GRAVITY                         9.80665 // Gravity
 #define DEG2RAD                         0.0174532925f //PI/180
-#define NORM_TOL                        0.000001
 
 // GPIO
 #define BUILTIN_LED                     GPIO_NUM_2

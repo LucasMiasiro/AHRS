@@ -80,6 +80,7 @@ extern "C" void app_main(void)
 
 void sensorTask(void* Parameters){
     GY87* IMU = (GY87*) Parameters;
+
     while(1){
         IMU->accumulateData();
     }
@@ -89,27 +90,57 @@ void navTask(void* Parameters){
     navData_ptr* navData = (navData_ptr*) Parameters;
     DCM DCM;
     DCM.initializeFilter();
+
+#if LOG_TIMER
+    int64_t start = esp_timer_get_time();
+    int64_t dt = 0;
+#endif
+
+    TickType_t startTimer = xTaskGetTickCount();
+
     while(1){
         navData->IMU_ptr->getData(navData->A_ptr, navData->G_ptr, navData->M_ptr);
         DCM.update(navData->A_ptr, navData->G_ptr, navData->M_ptr);
         DCM.getStates(navData->eulerAngles_ptr, navData->eulerAngRates_ptr);
-        vTaskDelay(SYSTEM_SAMPLE_PERIOD_MS/portTICK_PERIOD_MS); //TODO: Setar taxa fixa para execução da Navegação
+
+        vTaskDelayUntil(&startTimer, SYSTEM_SAMPLE_PERIOD_MS/portTICK_PERIOD_MS);
+
+#if LOG_TIMER
+        dt = esp_timer_get_time() - start;
+        start = esp_timer_get_time();
+        serialLogger::logInt64(&dt, "DTNAV");
+#endif
+
     }
 }
 
 void sendTask(void* Parameters){
     navData_ptr* navData = (navData_ptr*) Parameters;
+    TickType_t startTimer = xTaskGetTickCount();
+
+#if LOG_TIMER
+    int64_t start = esp_timer_get_time();
+    int64_t dt = 0;
+#endif
+
     while(1){
 
-        #if SEND_SERIAL
+#if SEND_SERIAL
         serialLogger::logFloat(navData->eulerAngles_ptr, 3, 1/DEG2RAD, "ATT");
         serialLogger::logFloat(navData->A_ptr, 3, "ACCEL");
         serialLogger::logFloat(navData->G_ptr, 3, "GYRO");
         serialLogger::logFloat(navData->M_ptr, 3, "MAG");
         serialLogger::logFloat(&navData->IMU_ptr->magModule, 1, "MMOD");
         serialLogger::blank_lines(1);
-        #endif
+#endif
 
-        vTaskDelay(SYSTEM_SAMPLE_PERIOD_MS/portTICK_PERIOD_MS); //TODO: Setar taxa fixa para execução da Navegação
+        vTaskDelayUntil(&startTimer, SYSTEM_SAMPLE_PERIOD_MS/portTICK_PERIOD_MS);
+
+#if LOG_TIMER
+        dt = esp_timer_get_time() - start;
+        start = esp_timer_get_time();
+        serialLogger::logInt64(&dt, "DTSEND");
+#endif
+
     }
 }

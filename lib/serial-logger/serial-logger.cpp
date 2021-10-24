@@ -71,5 +71,23 @@ void logFloat(const float *dataPtrArray[], const int lenArray, const int lenData
     std::cout << std::endl;
 };
 
+void logUInt8(const uint8_t *data, const char header[]){
+    std::cout << header << " ";
+    std::cout << (int)(*data) << " ";
+    std::cout << std::endl;
+};
+
+void logInt(const int *data, const char header[]){
+    std::cout << header << " ";
+    std::cout << (int)(*data) << " ";
+    std::cout << std::endl;
+};
+
+void logInt64(const int64_t *data, const char header[]){
+    std::cout << header << " ";
+    std::cout << (int64_t)(*data) << " ";
+    std::cout << std::endl;
+};
+
 
 };

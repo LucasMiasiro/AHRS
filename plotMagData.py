@@ -1,6 +1,6 @@
 from matplotlib import pyplot as plt, rcParams
-rcParams['grid.linewidth'] = 1.5
-plt.style.use('seaborn-darkgrid')
+rcParams['grid.linewidth'] = 1.6
+rcParams['grid.color'] = 'white'
 from mpl_toolkits.mplot3d import Axes3D
 import pythonUtils
 #-------------------------------------------------------------------
@@ -10,7 +10,8 @@ port = '/dev/ttyUSB0'
 baudRate = 115200
 
 color = 'royalblue'
-alpha = 0.5
+colors = ['tomato', 'mediumspringgreen', 'royalblue']
+alpha = 0.3
 origin = [0, 0, 0]
 l = 300
 axisLimits = [-600, 600]
@@ -23,8 +24,11 @@ sp = pythonUtils.serial.Serial(port, baudrate = baudRate,
                     timeout = None, xonxoff = True, rtscts = True, dsrdtr = True)
 
 plt.ion()
-fig = plt.figure(figsize = figSize)
+fig = plt.figure(figsize = figSize, tight_layout = True, facecolor = 'white');
 ax = fig.add_subplot(1, 1, 1, aspect='auto', projection = '3d')
+ax.w_xaxis.set_pane_color((0.93, 0.93, 0.93, 1.0))
+ax.w_yaxis.set_pane_color((0.93, 0.93, 0.93, 1.0))
+ax.w_zaxis.set_pane_color((0.93, 0.93, 0.93, 1.0))
 ax.set_xlim(axisLimits)
 ax.set_ylim(axisLimits)
 ax.set_zlim(axisLimits)
@@ -41,7 +45,8 @@ axis = plt.plot(mx, my, mz, ls = '', color = color, marker = 'o', alpha = alpha)
 
 if plotNEU:
     for i, v_i in enumerate(v):
-        plt.plot(*vector2Line(v_i, origin), c = 'black')
+        plt.plot(*vector2Line(v_i, origin), c = colors[i],
+                alpha = 0.7, ls = '--', lw = '1.3')
 
 while True:
     mag = pythonUtils.getData(sp, dataHeader = dataHeader)

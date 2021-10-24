@@ -178,7 +178,9 @@ bool GY87::cleanAccum(){
     M_raw_accum[1] = 0;
     M_raw_accum[2] = 0;
 
-    // std::cout << "[samples] "<< (int)N_samples << std::endl;
+#if LOG_TIMER
+    serialLogger::logUInt8(&N_samples, "NSMP");
+#endif
 
     N_samples = 0;
 
