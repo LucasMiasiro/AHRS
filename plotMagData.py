@@ -13,8 +13,8 @@ color = 'royalblue'
 colors = ['tomato', 'mediumspringgreen', 'royalblue']
 alpha = 0.3
 origin = [0, 0, 0]
-l = 300
-axisLimits = [-600, 600]
+l = 800
+axisLimits = [-1000, 1000]
 plotNEU = True
 figSize = (7, 7)
 

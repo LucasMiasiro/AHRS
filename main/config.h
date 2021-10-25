@@ -12,11 +12,11 @@
 #define SYSTEM_SAMPLE_PERIOD_MS         100
 #define DEFAULT_MODE                    1
 #if DEFAULT_MODE
-#define CALIBRATE_MAG                   0
-#define CALIBRATE_GYRO                  0
+    #define CALIBRATE_MAG               0
+    #define CALIBRATE_GYRO              0
 #else
-#define CALIBRATE_MAG                   1
-#define CALIBRATE_GYRO                  0
+    #define CALIBRATE_MAG               1
+    #define CALIBRATE_GYRO              0
 #endif
 
 #define SHOULD_LOG                      1
@@ -24,7 +24,7 @@
     #define LOG_MAIN                    1
     #define LOG_GY87                    0
     #define LOG_DCM                     0
-    #define LOG_TIMER                   0
+    #define LOG_TIMER                   1
     #define SEND_SERIAL                 1
 #else
     #define LOG_MAIN                    0
@@ -36,7 +36,8 @@
 
 // _________________________________________________________________________
 
-// I2C Param
+// GIOP and I2C Param
+#define BUILTIN_LED                     GPIO_NUM_2
 #define GY87_SDA_IO                     21
 #define GY87_SCL_IO                     22
 #define GY87_MASTER_FREQ_HZ             100000
@@ -69,6 +70,7 @@
 #define GY87_IMU_DATA_ADD               0X3B // First accel data address
 #define GY87_ACCEL_SENS                 1.0/16384/1.05f // Accel sensivity
 #define GY87_GYRO_SENS                  1.0/131.0*DEG2RAD // Gyro sensivity
+#define GY87_TEMP_SENS                  1 // Temp sensivity
 #if CALIBRATE_GYRO
     #define GY87_GYRO_CAL                0, 0, 0, 1, 1, 1
 #else
@@ -87,9 +89,12 @@
 #endif
 
 // Constants
-#define GY87_TEMP_SENS                  1 // Temp sensivity
 #define GRAVITY                         9.80665 // Gravity
 #define DEG2RAD                         0.0174532925f //PI/180
 
-// GPIO
-#define BUILTIN_LED                     GPIO_NUM_2
+// BLUETOOTH
+#define SPP_TAG             "INS"
+#define SPP_SERVER_NAME     "INS_SERVER"
+#define BT_INIT_MSG         "Welcome\r"
+#define BT_RECEIVED_MSG     "Received: "
+#define BT_DEVICE_NAME      "Embedded Navigation System"

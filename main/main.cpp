@@ -6,6 +6,8 @@
 #include "GY87.h"
 #include "DCM.h"
 
+#include "BT.cpp"
+
 #if DEFAULT_MODE
 extern "C" void app_main(void)
 {
@@ -52,6 +54,7 @@ extern "C" void app_main(void)
                             2,
                             &sendTask_h,
                             1);
+
 }
 
 #elif CALIBRATE_MAG
@@ -122,6 +125,8 @@ void sendTask(void* Parameters){
     int64_t start = esp_timer_get_time();
     int64_t dt = 0;
 #endif
+
+    serialBTLogger::startBT();
 
     while(1){
 

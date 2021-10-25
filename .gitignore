@@ -4,3 +4,4 @@ build/*
 */docs/*
 *.vim
 *__pycache__*
+*vscode

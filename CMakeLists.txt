@@ -7,4 +7,5 @@ set(EXTRA_COMPONENT_DIRS lib lib/esp-dsp)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+
 project(main)
