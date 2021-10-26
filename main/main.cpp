@@ -55,30 +55,74 @@ extern "C" void app_main(void)
                             &navData,
                             2,
                             &sendTask_h,
-                            0);
+                            1);
 
 #elif SEND_MODE==2
+
+    /* xTaskCreatePinnedToCore(gyroCalTask, */
+    /*                         "Gyro Cal Task", */
+    /*                         4*1024, */
+    /*                         &navData, */
+    /*                         0, */
+    /*                         &gyroCalTask_h, */
+    /*                         1); */
+    /* vTaskSuspend(gyroCalTask_h); */
+
+    /* xTaskCreatePinnedToCore(magCalTask, */
+    /*                         "Mag Cal Task", */
+    /*                         1*1024, */
+    /*                         &navData, */
+    /*                         0, */
+    /*                         &magCalTask_h, */
+    /*                         1); */
+    /* vTaskSuspend(magCalTask_h); */
+
     static serialBTLogger::navDataBT_ptr navDataBT = {.navData = &navData,
                                                 .sendTask_h = &sendTask_h,
                                                 .navTask_h = &navTask_h,
                                                 .sensorTask_h = &sensorTask_h,
-                                                .gyroCalTask_h = NULL,
-                                                .magCalTask_h = NULL};
+                                                .gyroCalTask_h = &gyroCalTask_h,
+                                                .magCalTask_h = &magCalTask_h};
 
     serialBTLogger::startBT(&navDataBT);
+
 #endif
 
 }
 
 #elif APP_MODE==1
+
 extern "C" void app_main(void)
 {
-    magCalTask(NULL);
+    static GY87 IMU;
+    static float A[3], G[3], M[3];
+    static float eulerAngles[3], eulerAngRates[3];
+
+    static navData_ptr navData = {.IMU_ptr = &IMU,
+                                .A_ptr = A,
+                                .G_ptr = G,
+                                .M_ptr = M,
+                                .eulerAngles_ptr = eulerAngles,
+                                .eulerAngRates_ptr = eulerAngRates};
+
+    magCalTask(&navData);
 }
+
 #elif APP_MODE==2
 extern "C" void app_main(void)
 {
-    gyroCalTask(NULL);
+    static GY87 IMU;
+    static float A[3], G[3], M[3];
+    static float eulerAngles[3], eulerAngRates[3];
+
+    static navData_ptr navData = {.IMU_ptr = &IMU,
+                                .A_ptr = A,
+                                .G_ptr = G,
+                                .M_ptr = M,
+                                .eulerAngles_ptr = eulerAngles,
+                                .eulerAngRates_ptr = eulerAngRates};
+
+    gyroCalTask(&navData);
 }
 #endif
 
@@ -151,15 +195,15 @@ void sendTask(void* Parameters){
 
 
 void gyroCalTask(void* Parameters){
-    GY87 IMU;
+    navData_ptr* navData = (navData_ptr*) Parameters;
     while(1){
-        IMU.gyroCalibrationLoop();
+        navData->IMU_ptr->gyroCalibrationLoop();
     }
 }
 
 void magCalTask(void* Parameters){
-    GY87 IMU;
+    navData_ptr* navData = (navData_ptr*) Parameters;
     while(1){
-        IMU.magCalibrationLoop();
+        navData->IMU_ptr->magCalibrationLoop();
     }
 }

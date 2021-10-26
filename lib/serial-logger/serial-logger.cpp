@@ -77,6 +77,12 @@ void logUInt8(const uint8_t *data, const char header[]){
     std::cout << std::endl;
 };
 
+void logUInt16(const uint16_t *data, const char header[]){
+    std::cout << header << " ";
+    std::cout << (int)(*data) << " ";
+    std::cout << std::endl;
+};
+
 void logInt(const int *data, const char header[]){
     std::cout << header << " ";
     std::cout << (int)(*data) << " ";

@@ -191,7 +191,7 @@ bool GY87::cleanAccum(){
     M_raw_accum[2] = 0;
 
 #if LOG_TIMER
-    serialLogger::logUInt8(&N_samples, "NSMP");
+    serialLogger::logUInt16(&N_samples, "NSMP");
 #endif
 
     N_samples = 0;

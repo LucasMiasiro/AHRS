@@ -10,7 +10,7 @@
 
 // Application Control
 #define SYSTEM_SAMPLE_PERIOD_MS         100
-#define APP_MODE                        2
+#define APP_MODE                        0
 
 #define SHOULD_LOG                      1
 #if SHOULD_LOG
@@ -18,7 +18,7 @@
     #define LOG_GY87                    0
     #define LOG_DCM                     0
     #define LOG_TIMER                   0
-    #define SEND_MODE                   2
+    #define SEND_MODE                   1
 #else
     #define LOG_MAIN                    0
     #define LOG_GY87                    0
@@ -78,7 +78,7 @@
 #if APP_MODE==1
     #define GY87_MAG_CAL                0, 0, 0, 1, 1, 1
 #else
-    #define GY87_MAG_CAL                -74.1667, -188.833, -108.958, 1.02326, 1.01448, 0.963317
+    #define GY87_MAG_CAL                526.477, 559.228, 270.432, 1.1153, 0.98743, 0.908038
 #endif
 
 // Constants

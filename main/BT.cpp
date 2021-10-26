@@ -101,10 +101,15 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param){
             esp_spp_write(param->write.handle, param->data_ind.len, param->data_ind.data);
 
             const char c2[] = BT_SEND_MSG_EULER;
+            const char c3[] = "gyrocal on";
             if (isEqual((char *)param->data_ind.data, (char *)c2, sizeof(c2)/sizeof(c2[0]) - 1)){
                 logFloat(param, __navDataBT_ptr->navData->eulerAngles_ptr,
                         3, 1/DEG2RAD, "ATT ", 4);
             }
+                /* else if (isEqual((char *)param->data_ind.data, (char *)c3, sizeof(c3)/sizeof(c3[0]) - 1)){ */
+                /* vTaskResume(*(__navDataBT_ptr->gyroCalTask_h)); */
+            /* } */
+
         }
  
         break;
