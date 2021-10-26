@@ -8,10 +8,11 @@
 
 #include "BT.cpp"
 
-#if DEFAULT_MODE
+#if APP_MODE==0
 extern "C" void app_main(void)
 {
-    static TaskHandle_t sensorTask_h = NULL, navTask_h = NULL, sendTask_h = NULL;
+    static TaskHandle_t sensorTask_h = NULL, navTask_h = NULL, sendTask_h = NULL,
+                        gyroCalTask_h = NULL, magCalTask_h = NULL;
 
     static GY87 IMU;
     static float A[3], G[3], M[3];
@@ -47,37 +48,37 @@ extern "C" void app_main(void)
                             &navTask_h,
                             1);
 
+#if SEND_MODE==1
     xTaskCreatePinnedToCore(sendTask,
                             "Send Task",
                             4*1024,
                             &navData,
                             2,
                             &sendTask_h,
-                            1);
+                            0);
+
+#elif SEND_MODE==2
+    static serialBTLogger::navDataBT_ptr navDataBT = {.navData = &navData,
+                                                .sendTask_h = &sendTask_h,
+                                                .navTask_h = &navTask_h,
+                                                .sensorTask_h = &sensorTask_h,
+                                                .gyroCalTask_h = NULL,
+                                                .magCalTask_h = NULL};
+
+    serialBTLogger::startBT(&navDataBT);
+#endif
 
 }
 
-#elif CALIBRATE_MAG
+#elif APP_MODE==1
 extern "C" void app_main(void)
 {
-    GY87 IMU;
-    while(1){
-        IMU.magCalibrationLoop();
-        vTaskDelay(10);
-    }
+    magCalTask(NULL);
 }
-#elif CALIBRATE_GYRO
+#elif APP_MODE==2
 extern "C" void app_main(void)
 {
-    GY87 IMU;
-    while(1){
-        IMU.gyroCalibrationLoop();
-        vTaskDelay(10);
-    }
-}
-#else
-extern "C" void app_main(void)
-{
+    gyroCalTask(NULL);
 }
 #endif
 
@@ -117,6 +118,7 @@ void navTask(void* Parameters){
     }
 }
 
+#if SEND_MODE==1
 void sendTask(void* Parameters){
     navData_ptr* navData = (navData_ptr*) Parameters;
     TickType_t startTimer = xTaskGetTickCount();
@@ -126,18 +128,14 @@ void sendTask(void* Parameters){
     int64_t dt = 0;
 #endif
 
-    serialBTLogger::startBT();
-
     while(1){
 
-#if SEND_SERIAL
         serialLogger::logFloat(navData->eulerAngles_ptr, 3, 1/DEG2RAD, "ATT");
         serialLogger::logFloat(navData->A_ptr, 3, "ACCEL");
         serialLogger::logFloat(navData->G_ptr, 3, "GYRO");
         serialLogger::logFloat(navData->M_ptr, 3, "MAG");
         serialLogger::logFloat(&navData->IMU_ptr->magModule, 1, "MMOD");
         serialLogger::blank_lines(1);
-#endif
 
         vTaskDelayUntil(&startTimer, SYSTEM_SAMPLE_PERIOD_MS/portTICK_PERIOD_MS);
 
@@ -147,5 +145,21 @@ void sendTask(void* Parameters){
         serialLogger::logInt64(&dt, "DTSEND");
 #endif
 
+    }
+}
+#endif
+
+
+void gyroCalTask(void* Parameters){
+    GY87 IMU;
+    while(1){
+        IMU.gyroCalibrationLoop();
+    }
+}
+
+void magCalTask(void* Parameters){
+    GY87 IMU;
+    while(1){
+        IMU.magCalibrationLoop();
     }
 }

@@ -64,19 +64,21 @@ bool GY87::getData(float* A, float* G, float* M){
 }
 
 bool GY87::calibrateMag(float *mag_min_max){
-
-    uint8_t buffer[20];
+    float A_temp[3], G_temp[3], M_temp[3];
     float magCal_temp[6] = {0};
-    float rx, ry, rz, r;
+    float rx, ry, rz, r, mag1, mag2, mag3;
     bool newMax = 0;
 
-    read(buffer, 20, GY87_IMU_ADD, GY87_IMU_DATA_ADD);
-    int16_t mag1_raw = (buffer[15] << 8 | buffer[14]);
-    int16_t mag2_raw = (buffer[17] << 8 | buffer[16]);
-    int16_t mag3_raw = (buffer[19] << 8 | buffer[18]);
-    float mag1 = (float)mag1_raw*GY87_MAG_SENS;
-    float mag2 = (float)mag2_raw*GY87_MAG_SENS;
-    float mag3 = (float)mag3_raw*GY87_MAG_SENS;
+    for (int i = 0; i < 100; i++){
+        accumulateData();
+    }
+    
+    getData(A_temp, G_temp, M_temp);
+
+    mag1 = M_temp[0];
+    mag2 = M_temp[1];
+    mag3 = M_temp[2];
+
     if (*mag_min_max == 0){
         *mag_min_max = mag1;
         *(mag_min_max+1) = mag1;
@@ -133,6 +135,8 @@ bool GY87::calibrateMag(float *mag_min_max){
 
 bool GY87::gyroCalibrationLoop(){
     float A_temp[3], G_temp[3], M_temp[3];
+    static builtin_led Led;
+    static bool ledState = 0;
 
     for (int i = 0; i < 100; i++){
         accumulateData();
@@ -146,6 +150,14 @@ bool GY87::gyroCalibrationLoop(){
     std::cout << 1 << ", ";
     std::cout << 1 << ", ";
     std::cout << 1 << std::endl;
+
+    if (ledState){
+        ledState = 0;
+    } else {
+        ledState = 1;
+    }
+    Led.set_level(ledState);
+
     return 0;
 }
 
@@ -158,7 +170,7 @@ bool GY87::magCalibrationLoop(){
         count = 0;
     }
 
-    if (count < 10){
+    if (count < 2){
         Led.set_level(1);
         count++;
     } else {

@@ -19,7 +19,7 @@ private:
     int32_t A_raw_accum[3] = {0, 0, 0};
     int32_t G_raw_accum[3] = {0, 0, 0};
     int32_t M_raw_accum[3] = {0, 0, 0};
-    uint8_t N_samples = 0;
+    uint16_t N_samples = 0;
 
 public:
 
