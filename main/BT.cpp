@@ -14,7 +14,7 @@
 namespace serialBTLogger{
 
 static char buffer[BT_BUFFERSIZE];
-static char LF[] = "\0";
+static char LF[] = "\n";
 
 int sizeofArray(char* array){
     int numberOfChars = 0;
@@ -96,17 +96,19 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param){
  
  
         if (bWriteAfterDataReceived){
-            const char c[] = BT_RECEIVED_MSG;
-            esp_spp_write(param->srv_open.handle, sizeof(c)/sizeof(c[0]), (uint8_t*) c);
-            esp_spp_write(param->write.handle, param->data_ind.len, param->data_ind.data);
+            /* const char c[] = BT_RECEIVED_MSG; */
+            /* esp_spp_write(param->srv_open.handle, sizeof(c)/sizeof(c[0]), (uint8_t*) c); */
+            /* esp_spp_write(param->write.handle, param->data_ind.len, param->data_ind.data); */
 
             const char c2[] = BT_SEND_MSG_EULER;
-            const char c3[] = "gyrocal on";
+            const char c3[] = BT_SEND_MSG_MAG;
             if (isEqual((char *)param->data_ind.data, (char *)c2, sizeof(c2)/sizeof(c2[0]) - 1)){
                 logFloat(param, __navDataBT_ptr->navData->eulerAngles_ptr,
-                        3, 1/DEG2RAD, "ATT ", 4);
+                        3, 1/DEG2RAD, "ATT", 4);
+            } else if (isEqual((char *)param->data_ind.data, (char *)c3, sizeof(c3)/sizeof(c3[0]) - 1)){
+                logFloat(param, __navDataBT_ptr->navData->M_ptr,
+                        3, 1, "MAG", 4);
             }
-                /* else if (isEqual((char *)param->data_ind.data, (char *)c3, sizeof(c3)/sizeof(c3[0]) - 1)){ */
                 /* vTaskResume(*(__navDataBT_ptr->gyroCalTask_h)); */
             /* } */
 

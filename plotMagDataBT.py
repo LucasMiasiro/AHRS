@@ -5,9 +5,11 @@ from mpl_toolkits.mplot3d import Axes3D
 import pythonUtils
 #-------------------------------------------------------------------
 
+charIn = 'M'
 dataHeader = "MAG"
-port = '/dev/ttyUSB0'
+port = '/dev/rfcomm0'
 baudRate = 115200
+dtWait = 0.1;
 
 color = 'royalblue'
 colors = ['tomato', 'mediumspringgreen', 'royalblue']
@@ -49,7 +51,8 @@ if plotNEU:
                 alpha = 0.7, ls = '--', lw = '1.3')
 
 while True:
-    mag = pythonUtils.getData(sp, dataHeader = dataHeader)
+    sp.write(charIn.encode())
+    mag = pythonUtils.getDataBT(sp, dataHeader = dataHeader)
     if mag is not None:
         mx.append(mag[0])
         my.append(mag[1])

@@ -18,7 +18,7 @@
     #define LOG_GY87                    0
     #define LOG_DCM                     0
     #define LOG_TIMER                   0
-    #define SEND_MODE                   1
+    #define SEND_MODE                   2
 #else
     #define LOG_MAIN                    0
     #define LOG_GY87                    0
@@ -88,8 +88,9 @@
 // BLUETOOTH
 #define SPP_TAG             "INS"
 #define SPP_SERVER_NAME     "INS_SERVER"
-#define BT_INIT_MSG         "Welcome\r"
+#define BT_INIT_MSG         "Welcome\n"
 #define BT_RECEIVED_MSG     "Received: "
 #define BT_DEVICE_NAME      "Embedded Navigation System"
 #define BT_SEND_MSG_EULER   "E"
+#define BT_SEND_MSG_MAG     "M"
 #define BT_BUFFERSIZE       20
