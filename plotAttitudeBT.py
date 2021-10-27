@@ -1,9 +1,5 @@
-from matplotlib import pyplot as plt, rcParams
-rcParams['grid.linewidth'] = 1.6
-rcParams['grid.color'] = 'white'
-from mpl_toolkits.mplot3d import Axes3D
-from scipy.spatial.transform import Rotation as R
 import pythonUtils
+from scipy.spatial.transform import Rotation as R
 #-------------------------------------------------------------------
 
 charIn = 'E'
@@ -23,21 +19,12 @@ figSize = (7, 7)
 
 sp = pythonUtils.serial.Serial(port, baudrate = baudRate,
                     timeout = None, xonxoff = True, rtscts = True, dsrdtr = True)
-
-plt.ion()
-fig = plt.figure(figsize = figSize, tight_layout = True, facecolor = None)
-ax = fig.add_subplot(1, 1, 1, aspect='auto', projection = '3d')
-ax.w_xaxis.set_pane_color((0.93, 0.93, 0.93, 1.0))
-ax.w_yaxis.set_pane_color((0.93, 0.93, 0.93, 1.0))
-ax.w_zaxis.set_pane_color((0.93, 0.93, 0.93, 1.0))
-ax.set_xlim(axisLimits)
-ax.set_ylim(axisLimits)
-ax.set_zlim(axisLimits)
-
 v = [[l, 0, 0],
     [0, l, 0],
     [0, 0, l]]
 axis = [0, 0, 0]
+
+plt, fig, ax = pythonUtils.plotAxis(figSize, axisLimits)
 
 def vector2Line(vector, origin):
     return [[origin_i, origin_i + vector_i] for origin_i, vector_i in zip(origin, vector)]
@@ -54,8 +41,7 @@ while True:
     sp.write(charIn.encode())
     att = pythonUtils.getDataBT(sp, dataHeader = dataHeader)
     if att is not None:
-        att.reverse()
-        rotation = R.from_euler('zyx', att, degrees = True)
+        rotation = R.from_euler('xyz', att, degrees = True)
         for i, v_i in enumerate(v):
             v_i = rotation.apply(v_i)
             axis[i][0].set_data_3d(*vector2Line(v_i, origin))

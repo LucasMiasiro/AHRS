@@ -7,6 +7,7 @@
 #define WMM_LOCALFIELD                  0.8660f, 0.0f, 0.5f
 #define R_0                             0.0f, 0.0f, 1.0f
 #define ANG_0                           0.0f
+#define AXIS_CONFIG                     0
 
 // Application Control
 #define SYSTEM_SAMPLE_PERIOD_MS         100
@@ -18,7 +19,7 @@
     #define LOG_GY87                    0
     #define LOG_DCM                     0
     #define LOG_TIMER                   0
-    #define SEND_MODE                   2
+    #define SEND_MODE                   1
 #else
     #define LOG_MAIN                    0
     #define LOG_GY87                    0
@@ -61,7 +62,7 @@
 #define GY87_CONFIG_6_ADD               0X67
 #define GY87_CONFIG_6_OPT               1 // 0 delay
 #define GY87_IMU_DATA_ADD               0X3B // First accel data address
-#define GY87_ACCEL_SENS                 1.0/16384/1.05f // Accel sensivity
+#define GY87_ACCEL_SENS                 -1.0/16384/1.05f // Accel sensivity
 #define GY87_GYRO_SENS                  1.0/131.0*DEG2RAD // Gyro sensivity
 #define GY87_TEMP_SENS                  1 // Temp sensivity
 #if APP_MODE==2

@@ -42,8 +42,7 @@ void DCM::initializeFilter(){
 }
 
 void DCM::filterFusion(){
-
-    quatProdConst(grad_f_normalized, -beta, buf_q);
+    quatProdConst(grad_f_normalized, -beta, buf_q); 
     quatAdd(buf_q, q_dot_G, q_dot);
     quatProdConst(q_dot, SYSTEM_SAMPLE_PERIOD_MS/1000.0f, buf_q);
     quatAdd(buf_q, q, q);
@@ -62,18 +61,22 @@ void DCM::gyroPred(){
 }
 
 void DCM::initializeVariables(float* A, float *G, float *M){
-    G_q[1] = G[0];
-    G_q[2] = G[1];
-    G_q[3] = G[2];
 
-    M_q[1] = M[0];
-    M_q[2] = M[1];
-    M_q[3] = M[2];
+#if AXIS_CONFIG==0
+    G_q[1] = -G[1];
+    G_q[2] = -G[0];
+    G_q[3] = -G[2];
+
+    M_q[1] = -M[1];
+    M_q[2] = -M[0];
+    M_q[3] = -M[2];
+
+    A_q[1] = -A[1];
+    A_q[2] = -A[0];
+    A_q[3] = -A[2];
+#endif
+
     normalizeQuat(M_q);
-
-    A_q[1] = A[0];
-    A_q[2] = A[1];
-    A_q[3] = A[2];
     normalizeQuat(A_q);
 
 #if COMPENSATE
@@ -115,7 +118,7 @@ void DCM::initializeMagTransposedJacobian(float Matrix[4][6], float* f){
 
     Matrix[0][5] = 2.0*q[2]*earthMagField[0];
     Matrix[1][5] = -4.0*q[1]*earthMagField[2] + 2.0*q[3]*earthMagField[0];
-    Matrix[2][5] = -4.0*q[1]*earthMagField[2] + 2.0*q[0]*earthMagField[0];
+    Matrix[2][5] = -4.0*q[2]*earthMagField[2] + 2.0*q[0]*earthMagField[0];
     Matrix[3][5] = 2.0*q[1]*earthMagField[0];
 
     f[3] =  2.0*(0.5f - q[2]*q[2] - q[3]*q[3])*earthMagField[0]
@@ -141,7 +144,7 @@ void DCM::initializeAccelTransposedJacobian(float Matrix[4][6], float *f){
 
     Matrix[0][2] = 0;
     Matrix[1][2] = -4.0*q[1];
-    Matrix[2][2] = -4.0*q[1];
+    Matrix[2][2] = -4.0*q[2];
     Matrix[3][2] = 0;
 
     f[0] = 2.0*(q[1]*q[3] - q[0]*q[2]) - A_q[1];
