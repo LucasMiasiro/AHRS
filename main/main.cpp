@@ -22,6 +22,7 @@ extern "C" void app_main(void)
     GNSS.initialize();
 
     static navData_ptr navData = {.IMU_ptr = &IMU,
+                                .GNSS_ptr = &GNSS,
                                 .A_ptr = A,
                                 .G_ptr = G,
                                 .M_ptr = M,
@@ -52,6 +53,7 @@ extern "C" void app_main(void)
                             1);
 
 #if SEND_MODE==1
+
     xTaskCreatePinnedToCore(sendTask,
                             "Send Task",
                             4*1024,
@@ -61,24 +63,6 @@ extern "C" void app_main(void)
                             1);
 
 #elif SEND_MODE==2
-
-    /* xTaskCreatePinnedToCore(gyroCalTask, */
-    /*                         "Gyro Cal Task", */
-    /*                         4*1024, */
-    /*                         &navData, */
-    /*                         0, */
-    /*                         &gyroCalTask_h, */
-    /*                         1); */
-    /* vTaskSuspend(gyroCalTask_h); */
-
-    /* xTaskCreatePinnedToCore(magCalTask, */
-    /*                         "Mag Cal Task", */
-    /*                         1*1024, */
-    /*                         &navData, */
-    /*                         0, */
-    /*                         &magCalTask_h, */
-    /*                         1); */
-    /* vTaskSuspend(magCalTask_h); */
 
     static serialBTLogger::navDataBT_ptr navDataBT = {.navData = &navData,
                                                 .sendTask_h = &sendTask_h,

@@ -20,7 +20,7 @@
     #define LOG_DCM                     0
     #define LOG_TIMER                   0
     #define LOG_ATGM336                 1
-    #define SEND_MODE                   2
+    #define SEND_MODE                   0
 #else
     #define LOG_MAIN                    0
     #define LOG_GY87                    0

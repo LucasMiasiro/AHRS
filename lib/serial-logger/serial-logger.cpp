@@ -104,5 +104,4 @@ void logInt64(const int64_t *data, const char header[]){
     std::cout << std::endl;
 };
 
-
 };
