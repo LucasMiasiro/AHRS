@@ -36,6 +36,4 @@ void ATGM336::initialize(){
 }
 
 ATGM336::ATGM336(){
-    /* gps_t GNSS; */
-    /* bool newData = false; */
 }

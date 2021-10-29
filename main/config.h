@@ -102,3 +102,5 @@
 #define GNSS_TASK_KB        4
 #define GNSS_TASK_CORE      1
 #define GNSS_TASK_PRIORITY  1
+#define GNSS_RX_IO          16
+#define GNSS_BAUD           9600

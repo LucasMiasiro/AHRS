@@ -154,8 +154,8 @@ typedef void *nmea_parser_handle_t;
     {                                      \
         .uart = {                          \
             .uart_port = UART_NUM_2,       \
-            .rx_pin = 16,                   \
-            .baud_rate = 9600,             \
+            .rx_pin = GNSS_RX_IO,                   \
+            .baud_rate = GNSS_BAUD,             \
             .data_bits = UART_DATA_8_BITS, \
             .parity = UART_PARITY_DISABLE, \
             .stop_bits = UART_STOP_BITS_1, \
