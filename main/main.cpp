@@ -5,6 +5,7 @@
 #include "config.h"
 #include "GY87.h"
 #include "DCM.h"
+#include "ATGM336.h"
 
 #include "BT.cpp"
 
@@ -17,6 +18,8 @@ extern "C" void app_main(void)
     static GY87 IMU;
     static float A[3], G[3], M[3];
     static float eulerAngles[3], eulerAngRates[3];
+    static ATGM336 GNSS;
+    GNSS.initialize();
 
     static navData_ptr navData = {.IMU_ptr = &IMU,
                                 .A_ptr = A,

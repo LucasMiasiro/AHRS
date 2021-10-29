@@ -19,12 +19,14 @@
     #define LOG_GY87                    0
     #define LOG_DCM                     0
     #define LOG_TIMER                   0
-    #define SEND_MODE                   1
+    #define LOG_ATGM336                 1
+    #define SEND_MODE                   2
 #else
     #define LOG_MAIN                    0
     #define LOG_GY87                    0
     #define LOG_DCM                     0
     #define LOG_TIMER                   0
+    #define LOG_ATGM336                 0
     #define SEND_MODE                   0
 #endif
 
@@ -95,3 +97,8 @@
 #define BT_SEND_MSG_EULER   "E"
 #define BT_SEND_MSG_MAG     "M"
 #define BT_BUFFERSIZE       20
+
+// GNSS
+#define GNSS_TASK_KB        4
+#define GNSS_TASK_CORE      1
+#define GNSS_TASK_PRIORITY  1

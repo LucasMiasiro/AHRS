@@ -36,6 +36,15 @@ void ruler()
     std::cout << "--------------------" << std::endl;
 }
 
+void logLongFloat(const float *dataPtr, const int lenData, const char header[]){
+    std::cout.precision(14);
+    std::cout << header << " ";
+    for (int j = 0; j < lenData; j++){
+        std::cout << *(dataPtr + j) << " ";
+    }
+    std::cout << std::endl;
+};
+
 void logFloat(const float *dataPtr, const int lenData, const int K, const char header[]){
     std::cout << header << " ";
     for (int j = 0; j < lenData; j++){
