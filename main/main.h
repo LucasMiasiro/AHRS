@@ -10,6 +10,8 @@ struct navData_ptr{
     float* M_ptr;
     float* eulerAngles_ptr;
     float* eulerAngRates_ptr;
+    float* pos_ptr;
+    float* vel_ptr;
 };
 void sensorTask(void*);
 void navTask(void*);

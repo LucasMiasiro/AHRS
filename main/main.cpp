@@ -5,6 +5,7 @@
 #include "config.h"
 #include "GY87.h"
 #include "DCM.h"
+#include "KF.h"
 #include "ATGM336.h"
 
 #include "BT.cpp"
@@ -12,12 +13,17 @@
 #if APP_MODE==0
 extern "C" void app_main(void)
 {
+    #if LOG_MAIN
+    serialLogger::header();
+    #endif
+
     static TaskHandle_t sensorTask_h = NULL, navTask_h = NULL, sendTask_h = NULL,
                         gyroCalTask_h = NULL, magCalTask_h = NULL;
 
     static GY87 IMU;
     static float A[3], G[3], M[3];
     static float eulerAngles[3], eulerAngRates[3];
+    static float pos[3], vel[3];
     static ATGM336 GNSS;
     GNSS.initialize();
 
@@ -27,12 +33,11 @@ extern "C" void app_main(void)
                                 .G_ptr = G,
                                 .M_ptr = M,
                                 .eulerAngles_ptr = eulerAngles,
-                                .eulerAngRates_ptr = eulerAngRates};
+                                .eulerAngRates_ptr = eulerAngRates,
+                                .pos_ptr = pos,
+                                .vel_ptr = vel};
 
     vTaskDelay(1000/portTICK_PERIOD_MS);
-    #if LOG_MAIN
-    serialLogger::header();
-    #endif
 
     xTaskCreatePinnedToCore(sensorTask,
                             "Sensor Task",
@@ -123,8 +128,10 @@ void sensorTask(void* Parameters){
 
 void navTask(void* Parameters){
     navData_ptr* navData = (navData_ptr*) Parameters;
+    float A_E[4] = {0.0f};
     DCM DCM;
     DCM.initializeFilter();
+    KF KF;
 
 #if LOG_TIMER
     int64_t start = esp_timer_get_time();
@@ -137,6 +144,13 @@ void navTask(void* Parameters){
         navData->IMU_ptr->getData(navData->A_ptr, navData->G_ptr, navData->M_ptr);
         DCM.update(navData->A_ptr, navData->G_ptr, navData->M_ptr);
         DCM.getStates(navData->eulerAngles_ptr, navData->eulerAngRates_ptr);
+
+        A_E[1] = navData->A_ptr[1]*(GRAVITY);
+        A_E[2] = navData->A_ptr[0]*(GRAVITY);
+        A_E[3] = navData->A_ptr[2]*(GRAVITY);
+        DCM.rotate2Earth(A_E);
+        KF.update(A_E);
+        KF.getStates(navData->pos_ptr, navData->vel_ptr);
 
         vTaskDelayUntil(&startTimer, SYSTEM_SAMPLE_PERIOD_MS/portTICK_PERIOD_MS);
 
@@ -166,6 +180,8 @@ void sendTask(void* Parameters){
         serialLogger::logFloat(navData->G_ptr, 3, "GYRO");
         serialLogger::logFloat(navData->M_ptr, 3, "MAG");
         serialLogger::logFloat(&navData->IMU_ptr->magModule, 1, "MMOD");
+        serialLogger::logFloat(navData->pos_ptr, 3, "POS");
+        serialLogger::logFloat(navData->vel_ptr, 3, "VEL");
         serialLogger::blank_lines(1);
 
         vTaskDelayUntil(&startTimer, SYSTEM_SAMPLE_PERIOD_MS/portTICK_PERIOD_MS);

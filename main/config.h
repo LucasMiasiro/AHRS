@@ -1,7 +1,7 @@
 #pragma once
 
 // Filter Control
-#define GYRO_ERROR                      2
+#define GYRO_ERROR                      1.0
 #define GYRO_DRIFT                      0.2
 #define COMPENSATE                      1
 #define WMM_LOCALFIELD                  0.8660f, 0.0f, 0.5f
@@ -81,24 +81,25 @@
 #if APP_MODE==1
     #define GY87_MAG_CAL                0, 0, 0, 1, 1, 1
 #else
-    #define GY87_MAG_CAL                526.477, 559.228, 270.432, 1.1153, 0.98743, 0.908038
+    #define GY87_MAG_CAL                519.371, 515.573, 275.969, 1.12558, 0.973765, 0.912364
 #endif
 
 // Constants
-#define GRAVITY                         9.80665 // Gravity
-#define DEG2RAD                         0.0174532925f //PI/180
+#define GRAVITY                         9.80665
+#define DEG2RAD                         0.0174532925f // pi/180
 
-// BLUETOOTH
-#define SPP_TAG             "INS"
-#define SPP_SERVER_NAME     "INS_SERVER"
-#define BT_INIT_MSG         "Welcome\n"
-#define BT_RECEIVED_MSG     "Received: "
-#define BT_DEVICE_NAME      "Embedded Navigation System"
-#define BT_SEND_MSG_EULER   "E"
-#define BT_SEND_MSG_MAG     "M"
-#define BT_BUFFERSIZE       20
+// Bluetooth
+#define SPP_TAG                         "INS"
+#define SPP_SERVER_NAME                 "INS_SERVER"
+#define BT_INIT_MSG                     "Welcome\n"
+#define BT_RECEIVED_MSG                 "Received: "
+#define BT_DEVICE_NAME                  "Embedded Navigation System"
+#define BT_SEND_MSG_EULER               "E"
+#define BT_SEND_MSG_MAG                 "M"
+#define BT_BUFFERSIZE                   20
 
 // GNSS
-#define GNSS_TASK_KB        4
-#define GNSS_TASK_CORE      1
-#define GNSS_TASK_PRIORITY  1
+#define GNSS_TASK_KB                    4
+#define GNSS_TASK_CORE                  1
+#define GNSS_TASK_PRIORITY              1
+#define GNSS_MIN_SATS                   3
