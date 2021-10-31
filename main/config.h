@@ -19,8 +19,9 @@
     #define LOG_GY87                    0
     #define LOG_DCM                     0
     #define LOG_TIMER                   0
-    #define LOG_ATGM336                 1
-    #define SEND_MODE                   0
+    #define LOG_ATGM336                 0
+    #define SEND_MODE                   1
+    #define LOG_SD                      1
 #else
     #define LOG_MAIN                    0
     #define LOG_GY87                    0
@@ -28,11 +29,12 @@
     #define LOG_TIMER                   0
     #define LOG_ATGM336                 0
     #define SEND_MODE                   0
+    #define LOG_SD                      0
 #endif
 
 // _________________________________________________________________________
 
-// GIOP and I2C Param
+// GPIO and I2C Parameters
 #define BUILTIN_LED                     GPIO_NUM_2
 #define GY87_SDA_IO                     21
 #define GY87_SCL_IO                     22
@@ -105,3 +107,13 @@
 #define GNSS_MIN_SATS                   3
 #define GNSS_RX_IO                      16
 #define GNSS_BAUD                       9600
+
+// SD SPI
+#define SD_MOUNT_POINT                  "/sdcard"
+#define SD_MISO_IO                      2
+#define SD_MOSI_IO                      15
+#define SD_CLK_IO                       14
+#define SD_CS_IO                        13
+#define SD_MAX_SEARCH_LEN               10
+#define SD_BUFFERSIZE                   20
+#define SD_MAX_FREQ_HZ                  10000

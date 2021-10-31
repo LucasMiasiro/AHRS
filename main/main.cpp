@@ -9,6 +9,7 @@
 #include "ATGM336.h"
 
 #include "BT.cpp"
+#include "SD-SPI.cpp"
 
 #if APP_MODE==0
 extern "C" void app_main(void)
@@ -26,6 +27,9 @@ extern "C" void app_main(void)
     static float pos[3], vel[3];
     static ATGM336 GNSS;
     GNSS.initialize();
+#if LOG_SD
+    SD::startSD();
+#endif
 
     static navData_ptr navData = {.IMU_ptr = &IMU,
                                 .GNSS_ptr = &GNSS,
@@ -70,11 +74,11 @@ extern "C" void app_main(void)
 #elif SEND_MODE==2
 
     static serialBTLogger::navDataBT_ptr navDataBT = {.navData = &navData,
-                                                .sendTask_h = &sendTask_h,
-                                                .navTask_h = &navTask_h,
-                                                .sensorTask_h = &sensorTask_h,
-                                                .gyroCalTask_h = &gyroCalTask_h,
-                                                .magCalTask_h = &magCalTask_h};
+                                                    .sendTask_h = &sendTask_h,
+                                                    .navTask_h = &navTask_h,
+                                                    .sensorTask_h = &sensorTask_h,
+                                                    .gyroCalTask_h = &gyroCalTask_h,
+                                                    .magCalTask_h = &magCalTask_h};
 
     serialBTLogger::startBT(&navDataBT);
 
@@ -145,10 +149,14 @@ void navTask(void* Parameters){
         DCM.update(navData->A_ptr, navData->G_ptr, navData->M_ptr);
         DCM.getStates(navData->eulerAngles_ptr, navData->eulerAngRates_ptr);
 
+#if AXIS_CONFIG==0
         A_E[1] = navData->A_ptr[1]*(GRAVITY);
         A_E[2] = navData->A_ptr[0]*(GRAVITY);
         A_E[3] = navData->A_ptr[2]*(GRAVITY);
+#endif
+
         DCM.rotate2Earth(A_E);
+
         KF.update(A_E);
         KF.getStates(navData->pos_ptr, navData->vel_ptr);
 
@@ -183,6 +191,10 @@ void sendTask(void* Parameters){
         serialLogger::logFloat(navData->pos_ptr, 3, "POS");
         serialLogger::logFloat(navData->vel_ptr, 3, "VEL");
         serialLogger::blank_lines(1);
+
+#if LOG_SD
+        SD::write(navData->eulerAngles_ptr, 3);
+#endif
 
         vTaskDelayUntil(&startTimer, SYSTEM_SAMPLE_PERIOD_MS/portTICK_PERIOD_MS);
 

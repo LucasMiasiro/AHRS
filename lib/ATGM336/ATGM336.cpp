@@ -12,6 +12,7 @@ void gps_event_handler(void *event_handler_arg, esp_event_base_t event_base,
     switch (event_id) {
     case GPS_UPDATE:
         if (((gps_t *) event_data)->sats_in_use > GNSS_MIN_SATS){
+
 #if LOG_ATGM336
             *(navDataGNSS_ptr->GNSS_ptr) = *((gps_t *) event_data);
             *(navDataGNSS_ptr->newData_ptr) = true;
@@ -24,6 +25,7 @@ void gps_event_handler(void *event_handler_arg, esp_event_base_t event_base,
             serialLogger::logUInt8(&(navDataGNSS_ptr->GNSS_ptr->sats_in_view), "STVIEW");
             serialLogger::blank_lines(1);
 #endif
+
             }
         break;
     case GPS_UNKNOWN:
