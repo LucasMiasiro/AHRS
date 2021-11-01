@@ -117,3 +117,4 @@
 #define SD_MAX_SEARCH_LEN               10
 #define SD_BUFFERSIZE                   20
 #define SD_MAX_FREQ_HZ                  10000
+#define SD_WRITE_UNTIL_SAVE             10

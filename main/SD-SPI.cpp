@@ -44,22 +44,26 @@ bool getNum(char *a, uint8_t* out, const char end){
 }
 
 void initializeFileHandle(){
-    printf("Writing to %s\n", filename);
+    printf("Writing log to %s\n", filename);
     f = fopen(filename, "a");
     if (f == NULL) {
         ESP_LOGE(TAG, "Failed to open file for writing");
     }
 }
 
-void write(float *x, const uint8_t len){
-    f = fopen(filename, "a");
-    for (int i = 0; i < len - 1; i++){
-        fprintf(f, "%f,", x[i]);
+void write(float *x[], const uint8_t len, const uint8_t arrayLen){
+    for (int j = 0; j < arrayLen; j++) {
+        for (int i = 0; i < len; i++){
+            fprintf(f, "%f,", x[j][i]);
+        }
     }
-    fprintf(f, "%f\n", x[len - 1]);
-    fclose(f);
+    fprintf(f, "\n");
 }
 
+void save(){
+    fclose(f);
+    f = fopen(filename, "a");
+}
 
 bool generateFileName(){
     uint8_t logNum = 0, fileNum = 0;

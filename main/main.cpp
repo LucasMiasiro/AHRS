@@ -181,6 +181,15 @@ void sendTask(void* Parameters){
     int64_t dt = 0;
 #endif
 
+#if LOG_SD
+    float timeData[3] = {0, 0, 0};
+    const uint8_t nSave = SD_WRITE_UNTIL_SAVE;
+    uint8_t count = 0;
+    float *logSDData_ptr[] = {timeData,
+                            navData->eulerAngles_ptr,
+                            navData->pos_ptr};
+#endif
+
     while(1){
 
         serialLogger::logFloat(navData->eulerAngles_ptr, 3, 1/DEG2RAD, "ATT");
@@ -193,7 +202,13 @@ void sendTask(void* Parameters){
         serialLogger::blank_lines(1);
 
 #if LOG_SD
-        SD::write(navData->eulerAngles_ptr, 3);
+        timeData[0] = esp_timer_get_time()/1000.0f;
+        SD::write(logSDData_ptr, 3, 3);
+        count++;
+        if (count > nSave){
+            SD::save();
+            count = 0;
+        }
 #endif
 
         vTaskDelayUntil(&startTimer, SYSTEM_SAMPLE_PERIOD_MS/portTICK_PERIOD_MS);
