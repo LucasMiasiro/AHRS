@@ -110,10 +110,10 @@
 
 // SD SPI
 #define SD_MOUNT_POINT                  "/sdcard"
-#define SD_MISO_IO                      2
-#define SD_MOSI_IO                      15
+#define SD_MISO_IO                      12
+#define SD_MOSI_IO                      13
 #define SD_CLK_IO                       14
-#define SD_CS_IO                        13
+#define SD_CS_IO                        15
 #define SD_MAX_SEARCH_LEN               10
 #define SD_BUFFERSIZE                   20
 #define SD_MAX_FREQ_HZ                  10000
