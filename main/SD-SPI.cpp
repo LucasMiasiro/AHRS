@@ -15,6 +15,7 @@
 #include "sdmmc_cmd.h"
 #include "dirent.h"
 #include "config.h"
+#include "time.h"
 
 #if CONFIG_IDF_TARGET_ESP32S2
 #define SPI_DMA_CHAN    host.slot
@@ -43,12 +44,14 @@ bool getNum(char *a, uint8_t* out, const char end){
     return 0;
 }
 
-void initializeFileHandle(){
+bool initializeFileHandle(){
     printf("Writing log to %s\n", filename);
     f = fopen(filename, "a");
     if (f == NULL) {
         ESP_LOGE(TAG, "Failed to open file for writing");
+        return 0;
     }
+    return 1;
 }
 
 void write(float *x[], const uint8_t len, const uint8_t arrayLen){
@@ -58,6 +61,9 @@ void write(float *x[], const uint8_t len, const uint8_t arrayLen){
         }
     }
     fprintf(f, "\n");
+}
+
+void writeHeader(){
 }
 
 void save(){
@@ -143,7 +149,10 @@ bool startSD(void){
     if(!generateFileName()){
         return 0;
     }
-    initializeFileHandle();
+    if(!initializeFileHandle()){
+        return 0;
+    }
+    writeHeader();
     return 1;
 }
 

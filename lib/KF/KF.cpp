@@ -44,8 +44,6 @@ void KF::predict(float *A_E){
     states[0] += A_E[1]*half_dt_squared + states[3]*dt;
     states[1] += A_E[2]*half_dt_squared + states[4]*dt;
     states[2] += A_E[3]*half_dt_squared + states[5]*dt;
-
-    /* serialLogger::logFloat(states, 6, "KF"); */
 }
 
 KF::KF(){

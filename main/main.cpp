@@ -1,5 +1,6 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "gpio-handler.h"
 #include "serial-logger.h"
 #include "main.h"
 #include "config.h"
@@ -26,9 +27,15 @@ extern "C" void app_main(void)
     static float eulerAngles[3], eulerAngRates[3];
     static float pos[3], vel[3];
     static ATGM336 GNSS;
+    static builtin_led led;
     GNSS.initialize();
+
 #if LOG_SD
-    SD::startSD();
+    if(!SD::startSD()) {
+        led.set_level(1);
+    } else {
+        led.set_level(0);
+    }
 #endif
 
     static navData_ptr navData = {.IMU_ptr = &IMU,
@@ -187,7 +194,8 @@ void sendTask(void* Parameters){
     uint8_t count = 0;
     float *logSDData_ptr[] = {timeData,
                             navData->eulerAngles_ptr,
-                            navData->pos_ptr};
+                            navData->pos_ptr,
+                            navData->vel_ptr};
 #endif
 
     while(1){
@@ -203,7 +211,7 @@ void sendTask(void* Parameters){
 
 #if LOG_SD
         timeData[0] = esp_timer_get_time()/1000.0f;
-        SD::write(logSDData_ptr, 3, 3);
+        SD::write(logSDData_ptr, 3, 4);
         count++;
         if (count > nSave){
             SD::save();
