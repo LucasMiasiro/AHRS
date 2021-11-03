@@ -20,6 +20,7 @@
     #define LOG_DCM                     0
     #define LOG_TIMER                   0
     #define LOG_ATGM336                 0
+    #define LOG_NEOM8N                  1
     #define SEND_MODE                   1
     #define LOG_SD                      1
 #else
@@ -28,6 +29,7 @@
     #define LOG_DCM                     0
     #define LOG_TIMER                   0
     #define LOG_ATGM336                 0
+    #define LOG_NEOM8N                  0
     #define SEND_MODE                   0
     #define LOG_SD                      0
 #endif
@@ -107,6 +109,9 @@
 #define GNSS_MIN_SATS                   3
 #define GNSS_RX_IO                      16
 #define GNSS_BAUD                       9600
+/* #define GNSS_CONV_TIME_S                20 */
+#define GNSS_CONV_TIME_S                10
+#define GNSS_CONV_VEL                   0.5f
 
 // SD SPI
 #define SD_MOUNT_POINT                  "/sdcard"

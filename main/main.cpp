@@ -7,7 +7,8 @@
 #include "GY87.h"
 #include "DCM.h"
 #include "KF.h"
-#include "ATGM336.h"
+#include "NEO-M8N.h"
+// #include "ATGM336.h"
 
 #include "BT.cpp"
 #include "SD-SPI.cpp"
@@ -26,17 +27,20 @@ extern "C" void app_main(void)
     static float A[3], G[3], M[3];
     static float eulerAngles[3], eulerAngRates[3];
     static float pos[3], vel[3];
-    static ATGM336 GNSS;
+    static NEOM8N GNSS;
+    // static ATGM336 GNSS;
     static builtin_led led;
     GNSS.initialize();
 
 #if LOG_SD
-    if(!SD::startSD()) {
-        led.set_level(1);
-    } else {
+    if(SD::startSD()) {
         led.set_level(0);
+    } else {
+        led.set_level(1);
     }
 #endif
+
+    GNSS.waitFix();
 
     static navData_ptr navData = {.IMU_ptr = &IMU,
                                 .GNSS_ptr = &GNSS,
@@ -211,6 +215,8 @@ void sendTask(void* Parameters){
 
 #if LOG_SD
         timeData[0] = esp_timer_get_time()/1000.0f;
+        timeData[1] = navData->GNSS_ptr->GNSS.latitude;
+        timeData[2] = navData->GNSS_ptr->GNSS.longitude;
         SD::write(logSDData_ptr, 3, 4);
         count++;
         if (count > nSave){

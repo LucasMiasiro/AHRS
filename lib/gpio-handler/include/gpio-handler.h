@@ -7,4 +7,5 @@ class builtin_led{
 public:
     builtin_led();
     void set_level(bool state);
+    void blink(int n, bool endHigh);
 };

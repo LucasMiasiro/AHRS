@@ -6,14 +6,14 @@ import math as m
 import pandas as pd
 
 def plot2D(df, labels, figSize, ncols = 3, axisLimits = None, fileout = None):
-    n = len(labels[0])
+    n = len(labels[0]) - 3
     nrows = m.ceil((n - 1)/ncols)
     fig, ax = plt.subplots(ncols = ncols, nrows = nrows,
                         figsize = figSize,
                         tight_layout = True, sharex = True)
 
     time = [labels[0][0], labels[1][0]]
-    labels = [labels[0][1:], labels[1][1:]]
+    labels = [labels[0][3:], labels[1][3:]]
     axisLimits = [df[time[0]].min(), df[time[0]].max()]
     for i in range(0, nrows):
         for j in range(0, ncols):
@@ -31,12 +31,22 @@ def plot2D(df, labels, figSize, ncols = 3, axisLimits = None, fileout = None):
 
     return plt, fig, ax
 
+def plotLatLon(df, labels, figSize, axisLimits = None, fileout = None):
+    fig = plt.scatter(x = df[labels[0][1]], y = df[labels[0][2]])
+
+    if fileout is not None:
+        plt.savefig(fileout, dpi = 400)
+
+    plt.show()
+
+    return plt, fig
+
 def readLog(file, sep = ',', header = None,
             dataSpecs = None):
     if dataSpecs is None:
         dataSpecs = {'time': (1, r'$t~[s]$'),
-                    'unused0': (0, ''),
-                    'unused1': (0, ''),
+                    'lat': (1, r'Latitude$~[º]$'),
+                    'lon': (1, r'Longitude$~[º]$'),
                     'roll': (1, r'$\phi~[º]$'),
                     'pitch': (1, r'$\theta~[º]$'),
                     'yaw': (1, r'$\psi~[º]$'),
