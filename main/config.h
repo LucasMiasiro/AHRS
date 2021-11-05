@@ -20,9 +20,9 @@
     #define LOG_DCM                     0
     #define LOG_TIMER                   0
     #define LOG_ATGM336                 0
-    #define LOG_NEOM8N                  1
+    #define LOG_NEOM8N                  0
     #define SEND_MODE                   1
-    #define LOG_SD                      1
+    #define LOG_SD                      0
 #else
     #define LOG_MAIN                    0
     #define LOG_GY87                    0
@@ -59,14 +59,29 @@
 #define GY87_CONFIG_1_ADD               0X37
 #define GY87_CONFIG_1_OPT_1             0X02 // Enable master bypass mode
 #define GY87_CONFIG_1_OPT_2             0X00 // Disable master bypass mode
-#define GY87_CONFIG_3_ADD               0X25
+    // Mag as slave
+#define GY87_CONFIG_3_ADD               0X25 // Setup Slave0 Device Address
 #define GY87_CONFIG_3_OPT               GY87_MAG_ADD | 0X80 // Read from MAG
-#define GY87_CONFIG_4_ADD               0X26
+#define GY87_CONFIG_4_ADD               0X26 // Setup Slave0 First Register
 #define GY87_CONFIG_4_OPT               0X00 // Data register
 #define GY87_CONFIG_5_ADD               0X27
 #define GY87_CONFIG_5_OPT               6 | 0X80 // Transfer size
 #define GY87_CONFIG_6_ADD               0X67
-#define GY87_CONFIG_6_OPT               1 // 0 delay
+#define GY87_CONFIG_6_OPT               2 | 1 // 0 delay for Mag and Baro
+
+    /* // Baro as slave */
+/* #define GY87_CONFIG_7_ADD               0X28 // Setup Slave1 Device Address */
+/* #define GY87_CONFIG_7_OPT               GY87_BARO_ADD | 0X80 // Read from baro */
+/* #define GY87_CONFIG_8_ADD               0X29 // Setup Slave1 First Register */
+/* #define GY87_CONFIG_8_OPT               GY87_BARO_REG // Read from baro */
+/* #define GY87_CONFIG_9_ADD               0X2A */
+/* #define GY87_CONFIG_9_OPT               3 | 0X80 //Transfer size */
+
+#define GY87_CONFIG_10_ADD              0XF4
+#define GY87_CONFIG_10_OPT              0X34
+#define GY87_CONFIG_11_ADD              0XF4
+#define GY87_CONFIG_11_OPT              0X2E
+
 #define GY87_IMU_DATA_ADD               0X3B // First accel data address
 #define GY87_ACCEL_SENS                 -1.0/16384/1.05f // Accel sensivity
 #define GY87_GYRO_SENS                  1.0/131.0*DEG2RAD // Gyro sensivity
@@ -87,6 +102,11 @@
 #else
     #define GY87_MAG_CAL                519.371, 515.573, 275.969, 1.12558, 0.973765, 0.912364
 #endif
+
+// BARO
+#define GY87_BARO_ADD                   0X77
+#define GY87_BARO_REG                   0XF6
+#define GY87_BARO_CALIB_REG             0XAA
 
 // Constants
 #define GRAVITY                         9.80665

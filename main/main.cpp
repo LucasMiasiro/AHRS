@@ -24,7 +24,7 @@ extern "C" void app_main(void)
                         gyroCalTask_h = NULL, magCalTask_h = NULL;
 
     static GY87 IMU;
-    static float A[3], G[3], M[3];
+    static float A[3], G[3], M[3], B;
     static float eulerAngles[3], eulerAngRates[3];
     static float pos[3], vel[3];
     static NEOM8N GNSS;
@@ -40,13 +40,15 @@ extern "C" void app_main(void)
     }
 #endif
 
-    GNSS.waitFix();
+    //GNSS.setHome(); // TODO: retornar
+    IMU.setHome();
 
     static navData_ptr navData = {.IMU_ptr = &IMU,
                                 .GNSS_ptr = &GNSS,
                                 .A_ptr = A,
                                 .G_ptr = G,
                                 .M_ptr = M,
+                                .B_ptr = &B,
                                 .eulerAngles_ptr = eulerAngles,
                                 .eulerAngRates_ptr = eulerAngRates,
                                 .pos_ptr = pos,
@@ -56,7 +58,7 @@ extern "C" void app_main(void)
 
     xTaskCreatePinnedToCore(sensorTask,
                             "Sensor Task",
-                            1*1024,
+                            2*1024,
                             &IMU,
                             1,
                             &sensorTask_h,
@@ -102,15 +104,19 @@ extern "C" void app_main(void)
 extern "C" void app_main(void)
 {
     static GY87 IMU;
-    static float A[3], G[3], M[3];
+    static float A[3], G[3], M[3], B;
     static float eulerAngles[3], eulerAngRates[3];
 
     static navData_ptr navData = {.IMU_ptr = &IMU,
+                                .GNSS_ptr = NULL,
                                 .A_ptr = A,
                                 .G_ptr = G,
                                 .M_ptr = M,
+                                .B_ptr = &B,
                                 .eulerAngles_ptr = eulerAngles,
-                                .eulerAngRates_ptr = eulerAngRates};
+                                .eulerAngRates_ptr = eulerAngRates,
+                                .pos_ptr = NULL,
+                                .vel_ptr = NULL};
 
     magCalTask(&navData);
 }
@@ -119,15 +125,19 @@ extern "C" void app_main(void)
 extern "C" void app_main(void)
 {
     static GY87 IMU;
-    static float A[3], G[3], M[3];
+    static float A[3], G[3], M[3], B;
     static float eulerAngles[3], eulerAngRates[3];
 
     static navData_ptr navData = {.IMU_ptr = &IMU,
+                                .GNSS_ptr = NULL,
                                 .A_ptr = A,
                                 .G_ptr = G,
                                 .M_ptr = M,
+                                .B_ptr = &B,
                                 .eulerAngles_ptr = eulerAngles,
-                                .eulerAngRates_ptr = eulerAngRates};
+                                .eulerAngRates_ptr = eulerAngRates,
+                                .pos_ptr = NULL,
+                                .vel_ptr = NULL};
 
     gyroCalTask(&navData);
 }
@@ -156,7 +166,8 @@ void navTask(void* Parameters){
     TickType_t startTimer = xTaskGetTickCount();
 
     while(1){
-        navData->IMU_ptr->getData(navData->A_ptr, navData->G_ptr, navData->M_ptr);
+        navData->IMU_ptr->getData(navData->A_ptr, navData->G_ptr,
+                                  navData->M_ptr, navData->B_ptr);
         DCM.update(navData->A_ptr, navData->G_ptr, navData->M_ptr);
         DCM.getStates(navData->eulerAngles_ptr, navData->eulerAngRates_ptr);
 
@@ -168,7 +179,7 @@ void navTask(void* Parameters){
 
         DCM.rotate2Earth(A_E);
 
-        KF.update(A_E);
+        KF.update(A_E, &DCM, navData);
         KF.getStates(navData->pos_ptr, navData->vel_ptr);
 
         vTaskDelayUntil(&startTimer, SYSTEM_SAMPLE_PERIOD_MS/portTICK_PERIOD_MS);
@@ -208,6 +219,7 @@ void sendTask(void* Parameters){
         serialLogger::logFloat(navData->A_ptr, 3, "ACCEL");
         serialLogger::logFloat(navData->G_ptr, 3, "GYRO");
         serialLogger::logFloat(navData->M_ptr, 3, "MAG");
+        serialLogger::logFloat(navData->B_ptr, 1, "BARO");
         serialLogger::logFloat(&navData->IMU_ptr->magModule, 1, "MMOD");
         serialLogger::logFloat(navData->pos_ptr, 3, "POS");
         serialLogger::logFloat(navData->vel_ptr, 3, "VEL");

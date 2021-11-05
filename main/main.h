@@ -10,6 +10,7 @@ struct navData_ptr{
     float* A_ptr;
     float* G_ptr;
     float* M_ptr;
+    float* B_ptr;
     float* eulerAngles_ptr;
     float* eulerAngRates_ptr;
     float* pos_ptr;

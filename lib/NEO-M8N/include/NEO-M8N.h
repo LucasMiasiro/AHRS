@@ -18,5 +18,5 @@ class NEOM8N{
     navDataGNSS data;
     NEOM8N();
     void initialize();
-    void waitFix();
+    void setHome();
 };

@@ -45,7 +45,7 @@ void NEOM8N::initialize(){
     nmea_parser_add_handler(nmea_hdl, gps_event_handler, &data);
 }
 
-void NEOM8N::waitFix(){
+void NEOM8N::setHome(){
     builtin_led led;
     uint8_t count = 0;
     bool is3DFixed = false, reachedConvergence = false;
@@ -55,10 +55,11 @@ void NEOM8N::waitFix(){
     while(count < GNSS_CONV_TIME_S){
         is3DFixed = (GNSS.fix > GPS_FIX_INVALID) && 
                     (GNSS.fix_mode == GPS_MODE_3D) &&
-                    (GNSS.sats_in_use > GNSS_MIN_SATS);
-        reachedConvergence = (GNSS.speed < GNSS_CONV_VEL) &&
-                            (GNSS.latitude != 0) &&
-                            (GNSS.longitude != 0);
+                    (GNSS.sats_in_use > GNSS_MIN_SATS) &&
+                    (GNSS.latitude != 0) &&
+                    (GNSS.longitude != 0);
+
+        reachedConvergence = (GNSS.speed < GNSS_CONV_VEL);
 
         if (is3DFixed && reachedConvergence){
             count++;

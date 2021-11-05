@@ -5,6 +5,9 @@
 #include <math.h> 
 #include "serial-logger.h"
 
+#include "DCM.h"
+#include "main.h"
+
 void KF::getStates(float *pos, float *vel){
     pos[0] = states[0];
     pos[1] = states[1];
@@ -15,7 +18,7 @@ void KF::getStates(float *pos, float *vel){
     vel[2] = states[5];
 }
 
-void KF::update(float *A_E){
+void KF::update(float *A_E, DCM *DCM, navData_ptr *navData){
     predict(A_E);
 
     if (states[0] > 1.0){ //TODO: remover

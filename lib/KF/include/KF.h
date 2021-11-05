@@ -2,6 +2,9 @@
 #include "config.h"
 #include "math.h"
 
+#include "DCM.h"
+#include "main.h"
+
 class KF {
 private:
     float states[6] = {0};
@@ -13,5 +16,5 @@ private:
 public:
     KF();
     void getStates(float*, float*);
-    void update(float*);
+    void update(float*, DCM*, navData_ptr *);
 };
