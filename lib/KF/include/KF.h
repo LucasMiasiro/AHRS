@@ -4,6 +4,7 @@
 
 #include "DCM.h"
 #include "main.h"
+#include "NEO-M8N.h"
 
 class KF {
 private:
@@ -11,10 +12,15 @@ private:
     const float dt = SYSTEM_SAMPLE_PERIOD_MS/1000.0f;
     const float half_dt_squared = dt*dt/2;
     void predict(float*);
+    void correct();
     void reset();
+
+    DCM *_DCM;
+    navData_ptr *_navData;
 
 public:
     KF();
+    KF(DCM *DCM, navData_ptr *&navData);
     void getStates(float*, float*);
-    void update(float*, DCM*, navData_ptr *);
+    void update(float*);
 };

@@ -5,9 +5,11 @@
 #define GYRO_DRIFT                      0.2
 #define COMPENSATE                      1
 #define WMM_LOCALFIELD                  0.8660f, 0.0f, 0.5f
+#define WMM_MAG_DECLINATION             -20.2*DEG2RAD
 #define R_0                             0.0f, 0.0f, 1.0f
 #define ANG_0                           0.0f
 #define AXIS_CONFIG                     0
+#define GNSS_FUSION_MIN_VEL             1.0f
 
 // Application Control
 #define SYSTEM_SAMPLE_PERIOD_MS         100
@@ -22,7 +24,7 @@
     #define LOG_ATGM336                 0
     #define LOG_NEOM8N                  0
     #define SEND_MODE                   1
-    #define LOG_SD                      0
+    #define LOG_SD                      1
 #else
     #define LOG_MAIN                    0
     #define LOG_GY87                    0
@@ -111,6 +113,9 @@
 // Constants
 #define GRAVITY                         9.80665
 #define DEG2RAD                         0.0174532925f // pi/180
+#define EARTH_FLATTENING                0.00335281f
+#define EARTH_EQUATORIAL_RADIUS         6378137.0f
+#define PI                              3.14159265359f
 
 // Bluetooth
 #define SPP_TAG                         "INS"
@@ -132,6 +137,7 @@
 /* #define GNSS_CONV_TIME_S                20 */
 #define GNSS_CONV_TIME_S                10
 #define GNSS_CONV_VEL                   0.5f
+#define GNSS_HOME_REQ_3D                0
 
 // SD SPI
 #define SD_MOUNT_POINT                  "/sdcard"

@@ -3,6 +3,7 @@
 #include "nmea_parser.h"
 #include "serial-logger.h"
 #include <iostream>
+#include <math.h> 
 #include "gpio-handler.h"
 
 void gps_event_handler(void *event_handler_arg, esp_event_base_t event_base,
@@ -53,11 +54,20 @@ void NEOM8N::setHome(){
     led.set_level(1);
 
     while(count < GNSS_CONV_TIME_S){
+
+#if GNSS_HOME_REQ_3D
         is3DFixed = (GNSS.fix > GPS_FIX_INVALID) && 
                     (GNSS.fix_mode == GPS_MODE_3D) &&
                     (GNSS.sats_in_use > GNSS_MIN_SATS) &&
                     (GNSS.latitude != 0) &&
                     (GNSS.longitude != 0);
+#else
+        is3DFixed = (GNSS.fix > GPS_FIX_INVALID) && 
+                    (GNSS.fix_mode >= GPS_MODE_2D) &&
+                    (GNSS.sats_in_use > GNSS_MIN_SATS) &&
+                    (GNSS.latitude != 0) &&
+                    (GNSS.longitude != 0);
+#endif
 
         reachedConvergence = (GNSS.speed < GNSS_CONV_VEL);
 
@@ -74,9 +84,27 @@ void NEOM8N::setHome(){
         vTaskDelay(1000.0f/SYSTEM_SAMPLE_PERIOD_MS);
     }
 
+    calcFlatEarthParameters();
+}
+
+void NEOM8N::calcFlatEarthParameters(){
     Home_LatLon[0] = GNSS.latitude;
     Home_LatLon[1] = GNSS.longitude;
-    led.blink(10, false);
+    float R_N, R_M;
+
+    R_N = R / sqrt(1 - (2*f - f*f)*
+    sin(Home_LatLon[0]*DEG2RAD)*sin(Home_LatLon[0]*DEG2RAD));
+
+    R_M = R_N * (1 - (2*f - f*f))/(1 - (2*f - f*f)*
+    sin(Home_LatLon[0]*DEG2RAD)*sin(Home_LatLon[0]*DEG2RAD));
+
+    K_N = DEG2RAD/atan2f(1, R_M);
+    K_E = DEG2RAD/atan2f(1, R_N*cos(Home_LatLon[0]*DEG2RAD));
+}
+
+void NEOM8N::getPos(float *posX, float *posY){
+    *posX = (GNSS.latitude - Home_LatLon[0])*K_N;
+    *posY = (GNSS.longitude - Home_LatLon[1])*K_E;
 }
 
 NEOM8N::NEOM8N(){

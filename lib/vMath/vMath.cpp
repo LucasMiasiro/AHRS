@@ -4,13 +4,19 @@
 #include "esp_dsp.h"
 
 
-void quat2Euler(float *q, float *euler_out){
+void quat2Euler(float *q, float *euler_out, const float magDeclination){
     //Phi
-    euler_out[0] = atan2(q[2]*q[3] + q[0]*q[1], 0.5 - (q[1]*q[1] + q[2]*q[2]));
+    euler_out[0] = atan2f(q[2]*q[3] + q[0]*q[1], 0.5 - (q[1]*q[1] + q[2]*q[2]));
     //Theta
-    euler_out[1] = asin(2*(q[0]*q[2] - q[1]*q[3]));
+    euler_out[1] = asinf(2*(q[0]*q[2] - q[1]*q[3]));
     //Psi
-    euler_out[2] = atan2(q[1]*q[2] + q[0]*q[3], 0.5 - (q[2]*q[2] + q[3]*q[3]));
+    /* euler_out[2] = atan2f(q[1]*q[2] + q[0]*q[3], 0.5 - (q[2]*q[2] + q[3]*q[3])); */
+    euler_out[2] = atan2f(q[1]*q[2] + q[0]*q[3], 0.5 - (q[2]*q[2] + q[3]*q[3])) + magDeclination;
+    if (euler_out[2] < -PI) {
+        euler_out[2] += 2*PI;
+    } else if (euler_out[2] > PI) {
+        euler_out[2] -= 2*PI;
+    }
 }
 
 void normalize(float *in, int len){

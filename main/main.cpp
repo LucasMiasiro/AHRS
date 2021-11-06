@@ -40,8 +40,9 @@ extern "C" void app_main(void)
     }
 #endif
 
-    //GNSS.setHome(); // TODO: retornar
+    // GNSS.setHome(); //TODO retirar
     IMU.setHome();
+    led.blink(10, false);
 
     static navData_ptr navData = {.IMU_ptr = &IMU,
                                 .GNSS_ptr = &GNSS,
@@ -156,7 +157,7 @@ void navTask(void* Parameters){
     float A_E[4] = {0.0f};
     DCM DCM;
     DCM.initializeFilter();
-    KF KF;
+    KF KF(&DCM, navData);
 
 #if LOG_TIMER
     int64_t start = esp_timer_get_time();
@@ -179,7 +180,7 @@ void navTask(void* Parameters){
 
         DCM.rotate2Earth(A_E);
 
-        KF.update(A_E, &DCM, navData);
+        KF.update(A_E);
         KF.getStates(navData->pos_ptr, navData->vel_ptr);
 
         vTaskDelayUntil(&startTimer, SYSTEM_SAMPLE_PERIOD_MS/portTICK_PERIOD_MS);

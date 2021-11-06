@@ -6,7 +6,7 @@
 #include "serial-logger.h"
 
 void DCM::getStates(float *eulerAngles, float *eulerRates){
-    quat2Euler(q, eulerAngles);
+    quat2Euler(q, eulerAngles, WMM_MAG_DECLINATION);
 }
 
 void DCM::update(float* A, float* G, float* M){

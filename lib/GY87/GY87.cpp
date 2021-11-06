@@ -34,10 +34,17 @@ void GY87::setHome(){
     float B_accum = 0;
     uint8_t N_accum = 0;
 
-    for (int j = 0; j < 20; j++){
+    for (int j = 0; j < 10; j++){
         accumulateData();
     }
     getData(A_temp, G_temp, M_temp, &B_temp);
+
+    for (int j = 0; j < 10; j++){
+        accumulateData();
+    }
+    calcTruePressureAccum();
+    lastB = calcAlt();
+    cleanAccum();
 
     for (int i = 0; i < 10; i++){
         for (int j = 0; j < 20; j++){
@@ -49,6 +56,7 @@ void GY87::setHome(){
     }
 
     Home_Alt = B_accum/N_accum;
+    lastB = Home_Alt;
 }
 
 bool GY87::getData(float* A, float* G, float* M, float* B){
@@ -69,7 +77,8 @@ bool GY87::getData(float* A, float* G, float* M, float* B){
         *(M+2) = (M_raw[2]*GY87_MAG_SENS - magCal[2])*magCal[5];
 
         calcTruePressure();
-        *B = calcAlt();
+        *B = 0.2*calcAlt() + 0.8*lastB;
+        lastB = *B;
 
         return 1;
     }
@@ -89,7 +98,8 @@ bool GY87::getData(float* A, float* G, float* M, float* B){
     magModule = sqrt((*M)*(*M) + (*(M+1))*(*(M+1)) + (*(M+2))*(*(M+2)));
 
     calcTruePressureAccum();
-    *B = calcAlt();
+    *B = 0.2*calcAlt() + 0.8*lastB;
+    lastB = *B;
 
     cleanAccum();
 

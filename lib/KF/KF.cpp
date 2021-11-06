@@ -7,6 +7,7 @@
 
 #include "DCM.h"
 #include "main.h"
+#include "NEO-M8N.h"
 
 void KF::getStates(float *pos, float *vel){
     pos[0] = states[0];
@@ -18,14 +19,34 @@ void KF::getStates(float *pos, float *vel){
     vel[2] = states[5];
 }
 
-void KF::update(float *A_E, DCM *DCM, navData_ptr *navData){
+void KF::update(float *A_E){
     predict(A_E);
+    correct();
+}
 
-    if (states[0] > 1.0){ //TODO: remover
+void KF::correct(){
+    if (states[0] > 30.0 || states[1] > 30.0){ //TODO: remover
         reset();
-    } else if (states[0] < -1.0) {
+    } else if (states[0] < -30.0  || states[1] < -30.0) {
         reset();
     }
+
+    if (_navData->GNSS_ptr->newData){ //TODO implementar
+        _navData->GNSS_ptr->getPos(&states[0], &states[1]);
+        if (_navData->GNSS_ptr->GNSS.speed > GNSS_FUSION_MIN_VEL) {
+            states[3] = cosf(_navData->GNSS_ptr->GNSS.cog * DEG2RAD)
+                            * _navData->GNSS_ptr->GNSS.speed;
+            states[4] = sinf(_navData->GNSS_ptr->GNSS.cog * DEG2RAD)
+                            * _navData->GNSS_ptr->GNSS.speed;
+        } else {
+            states[3] = 0;
+            states[4] = 0;
+        }
+        _navData->GNSS_ptr->newData = 0;
+    }
+    states[2] = _navData->IMU_ptr->Home_Alt - *(_navData->B_ptr);
+    states[5] = 0;
+
 }
 
 void KF::reset(){
@@ -49,5 +70,12 @@ void KF::predict(float *A_E){
     states[2] += A_E[3]*half_dt_squared + states[5]*dt;
 }
 
+
+KF::KF(DCM *DCM, navData_ptr *&navData){
+    _DCM = DCM;
+    _navData = navData;
+};
+
 KF::KF(){
+
 };

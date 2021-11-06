@@ -10,6 +10,10 @@ struct navDataGNSS {
 
 class NEOM8N{
     private:
+    const float f = EARTH_FLATTENING;
+    const float R = EARTH_EQUATORIAL_RADIUS;
+    float K_N, K_E;
+    void calcFlatEarthParameters();
 
     public:
     float Home_LatLon[2] = {0, 0};
@@ -19,4 +23,5 @@ class NEOM8N{
     NEOM8N();
     void initialize();
     void setHome();
+    void getPos(float*, float*);
 };

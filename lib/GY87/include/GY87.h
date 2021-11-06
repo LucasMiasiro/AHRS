@@ -35,7 +35,8 @@ private:
     uint16_t AC4, AC5, AC6;
     int32_t X1, X2, X3, B3, B5, B6;
     uint32_t B4, B7;
-    int32_t T = 0, p = 0;
+    int32_t T = 250, p = 0;
+    float lastB = 500;
     BAROSTATE baroState = SHOULD_READ_TEMP;
 
     const float magCal[6] = {GY87_MAG_CAL};
@@ -59,6 +60,7 @@ public:
     bool magCalibrationLoop();
     bool gyroCalibrationLoop();
     void setHome();
+    void getPosZ(float *);
 
     float Home_Alt;
     float magModule = 0;
