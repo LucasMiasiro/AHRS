@@ -34,4 +34,7 @@ public:
     void update(float*, float*, float*);
     void getStates(float*, float*);
     void initializeFilter();
+    void rotate2Earth(float *v);
+    void rotate2Earth(float M[3][3], float v[3]);
+    void getDCM(float M[3][3], float *q);
 };

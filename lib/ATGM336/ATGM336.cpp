@@ -11,15 +11,22 @@ void gps_event_handler(void *event_handler_arg, esp_event_base_t event_base,
 
     switch (event_id) {
     case GPS_UPDATE:
-        *(navDataGNSS_ptr->GNSS_ptr) = *((gps_t *) event_data);
-        *(navDataGNSS_ptr->newData_ptr) = true;
+        if (((gps_t *) event_data)->sats_in_use > GNSS_MIN_SATS){
+
 #if LOG_ATGM336
-        serialLogger::logLongFloat(&(navDataGNSS_ptr->GNSS_ptr->latitude), 1, "GLAT");
-        serialLogger::logLongFloat(&(navDataGNSS_ptr->GNSS_ptr->longitude), 1, "GLON");
-        serialLogger::logLongFloat(&(navDataGNSS_ptr->GNSS_ptr->altitude), 1, "GALT");
-        serialLogger::logLongFloat(&(navDataGNSS_ptr->GNSS_ptr->cog), 1, "GCOG");
-        serialLogger::logLongFloat(&(navDataGNSS_ptr->GNSS_ptr->speed), 1, "GVEL");
+            *(navDataGNSS_ptr->GNSS_ptr) = *((gps_t *) event_data);
+            *(navDataGNSS_ptr->newData_ptr) = true;
+            serialLogger::logLongFloat(&(navDataGNSS_ptr->GNSS_ptr->latitude), 1, "GLAT");
+            serialLogger::logLongFloat(&(navDataGNSS_ptr->GNSS_ptr->longitude), 1, "GLON");
+            serialLogger::logLongFloat(&(navDataGNSS_ptr->GNSS_ptr->altitude), 1, "GALT");
+            serialLogger::logLongFloat(&(navDataGNSS_ptr->GNSS_ptr->cog), 1, "GCOG");
+            serialLogger::logLongFloat(&(navDataGNSS_ptr->GNSS_ptr->speed), 1, "GVEL");
+            serialLogger::logUInt8(&(navDataGNSS_ptr->GNSS_ptr->sats_in_use), "STUSE");
+            serialLogger::logUInt8(&(navDataGNSS_ptr->GNSS_ptr->sats_in_view), "STVIEW");
+            serialLogger::blank_lines(1);
 #endif
+
+            }
         break;
     case GPS_UNKNOWN:
         break;
