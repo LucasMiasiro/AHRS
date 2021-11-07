@@ -24,7 +24,7 @@
     #define LOG_ATGM336                 0
     #define LOG_NEOM8N                  0
     #define SEND_MODE                   1
-    #define LOG_SD                      1
+    #define LOG_SD                      0
 #else
     #define LOG_MAIN                    0
     #define LOG_GY87                    0
@@ -91,7 +91,7 @@
 #if APP_MODE==2
     #define GY87_GYRO_CAL                0, 0, 0, 1, 1, 1
 #else
-    #define GY87_GYRO_CAL                -0.0304047, 0.00966193, 0.0254938, 1, 1, 1
+    #define GY87_GYRO_CAL                -0.0305366, 0.00793925, 0.0266915, 1, 1, 1
 #endif
 
 // MAG
@@ -102,7 +102,10 @@
 #if APP_MODE==1
     #define GY87_MAG_CAL                0, 0, 0, 1, 1, 1
 #else
+    /* #define GY87_MAG_CAL                0, 0, 0, 1, 1, 1 */
     #define GY87_MAG_CAL                519.371, 515.573, 275.969, 1.12558, 0.973765, 0.912364
+    /* -278.155, 499.327, 410.205, 0.126976, 2.83231, 2.7806 */
+
 #endif
 
 // BARO
