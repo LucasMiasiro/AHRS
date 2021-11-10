@@ -72,9 +72,15 @@ bool GY87::getData(float* A, float* G, float* M, float* B){
         *(G+1) = G_raw[1]*GY87_GYRO_SENS - gyroCal[1];
         *(G+2) = G_raw[2]*GY87_GYRO_SENS - gyroCal[2];
 
+#if SHOULD_USE_MAG2
+        *M = (M_raw[0]*LSM_MAG_SENS - magCal[0])*magCal[3];
+        *(M+1) = (M_raw[1]*LSM_MAG_SENS - magCal[1])*magCal[4];
+        *(M+2) = (M_raw[2]*LSM_MAG_SENS - magCal[2])*magCal[5];
+#else
         *M = (M_raw[0]*GY87_MAG_SENS - magCal[0])*magCal[3];
         *(M+1) = (M_raw[1]*GY87_MAG_SENS - magCal[1])*magCal[4];
         *(M+2) = (M_raw[2]*GY87_MAG_SENS - magCal[2])*magCal[5];
+#endif
 
         calcTruePressure();
         *B = 0.2*calcAlt() + 0.8*lastB;
@@ -91,9 +97,15 @@ bool GY87::getData(float* A, float* G, float* M, float* B){
     *(G+1) = G_raw_accum[1]*GY87_GYRO_SENS/N_samples - gyroCal[1];
     *(G+2) = G_raw_accum[2]*GY87_GYRO_SENS/N_samples - gyroCal[2];
 
+#if SHOULD_USE_MAG2
+    *M = (M_raw_accum[0]*LSM_MAG_SENS/N_samples - magCal[0])*magCal[3];
+    *(M+1) = (M_raw_accum[1]*LSM_MAG_SENS/N_samples - magCal[1])*magCal[4];
+    *(M+2) = (M_raw_accum[2]*LSM_MAG_SENS/N_samples - magCal[2])*magCal[5];
+#else
     *M = (M_raw_accum[0]*GY87_MAG_SENS/N_samples - magCal[0])*magCal[3];
     *(M+1) = (M_raw_accum[1]*GY87_MAG_SENS/N_samples - magCal[1])*magCal[4];
     *(M+2) = (M_raw_accum[2]*GY87_MAG_SENS/N_samples - magCal[2])*magCal[5];
+#endif
 
     magModule = sqrt((*M)*(*M) + (*(M+1))*(*(M+1)) + (*(M+2))*(*(M+2)));
 
@@ -282,6 +294,17 @@ GY87::GY87(){
     opt = GY87_CONFIG_6_OPT;
     write(&opt, 1, GY87_IMU_ADD, GY87_CONFIG_6_ADD);
 
+#if SHOULD_USE_MAG2
+    opt = LSM_CONFIG_1_OPT;
+    write(&opt, 1, LSM_MAG_ADD, LSM_CONFIG_1_ADD);
+
+    opt = LSM_CONFIG_2_OPT;
+    write(&opt, 1, LSM_MAG_ADD, LSM_CONFIG_2_ADD);
+
+    opt = LSM_CONFIG_3_OPT;
+    write(&opt, 1, LSM_MAG_ADD, LSM_CONFIG_3_ADD);
+#endif
+
     getBaroCal();
     setPressureMeas();
 };
@@ -374,9 +397,31 @@ void GY87::setTemperatureMeas(){
 
 bool GY87::readData(){
 
-    if (read(buffer, 20, GY87_IMU_ADD, GY87_IMU_DATA_ADD) != ESP_OK){
+#if SHOULD_USE_MAG2
+
+    if (read(buffer, 14, GY87_IMU_ADD, GY87_IMU_DATA_ADD) != ESP_OK){
         return 1;
     }
+
+    A_raw[0] = (buffer[0] << 8 | buffer[1]);
+    A_raw[1] = (buffer[2] << 8 | buffer[3]);
+    A_raw[2] = (buffer[4] << 8 | buffer[5]);
+
+    G_raw[0] = (buffer[8] << 8 | buffer[9]);
+    G_raw[1] = (buffer[10] << 8 | buffer[11]);
+    G_raw[2] = (buffer[12] << 8 | buffer[13]);
+
+    if (read(buffer, 6, LSM_MAG_ADD, LSM_MAG_DATA_ADD) != ESP_OK){
+        return 1;
+    }
+
+    M_raw[0] = (buffer[0] << 8 | buffer[1]);
+    M_raw[1] = (buffer[4] << 8 | buffer[5]);
+    M_raw[2] = (buffer[2] << 8 | buffer[3]);
+
+#else
+
+    if (read(buffer, 20, GY87_IMU_ADD, GY87_IMU_DATA_ADD) != ESP_OK){
 
     A_raw[0] = (buffer[0] << 8 | buffer[1]);
     A_raw[1] = (buffer[2] << 8 | buffer[3]);
@@ -389,6 +434,8 @@ bool GY87::readData(){
     M_raw[0] = (buffer[15] << 8 | buffer[14]);
     M_raw[1] = (buffer[17] << 8 | buffer[16]);
     M_raw[2] = (buffer[19] << 8 | buffer[18]);
+
+#endif
 
     switch (baroState) {
         case (SHOULD_READ_TEMP):
