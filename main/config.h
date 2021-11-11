@@ -8,7 +8,7 @@
 #define WMM_MAG_DECLINATION             -20.2*DEG2RAD
 #define R_0                             0.0f, 0.0f, 1.0f
 #define ANG_0                           0.0f
-#define AXIS_CONFIG                     0
+#define AXIS_CONFIG                     1
 #define GNSS_FUSION_MIN_VEL             1.0f
 
 // Application Control
@@ -84,9 +84,9 @@
 #define GY87_GYRO_SENS                  1.0/131.0*DEG2RAD // Gyro sensivity
 #define GY87_TEMP_SENS                  1 // Temp sensivity
 #if APP_MODE==2
-    #define GY87_GYRO_CAL                0, 0, 0, 1, 1, 1
+    #define GY87_GYRO_CAL               0, 0, 0, 1, 1, 1
 #else
-    #define GY87_GYRO_CAL                -0.0305366, 0.00793925, 0.0266915, 1, 1, 1
+    #define GY87_GYRO_CAL               -0.0376058, 0.0255178, 0.00165873, 1, 1, 1
 #endif
 
 // MAG
@@ -109,7 +109,7 @@
 #if APP_MODE==1
     #define GY87_MAG_CAL                0, 0, 0, 1, 1, 1
 #else
-    #define GY87_MAG_CAL                -32.3567, -157.93, -54.5263, 0.893103, 0.998468, 1.12141
+    #define GY87_MAG_CAL                48.7953, 70.6023, 20.7134, 0.918624, 0.917982, 1.18585
 #endif
 
 // BARO

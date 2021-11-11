@@ -74,6 +74,18 @@ void DCM::initializeVariables(float* A, float *G, float *M){
     A_q[1] = -A[1];
     A_q[2] = -A[0];
     A_q[3] = -A[2];
+#elif AXIS_CONFIG==1
+    G_q[1] = G[1];
+    G_q[2] = G[0];
+    G_q[3] = -G[2];
+
+    M_q[1] = M[0];
+    M_q[2] = M[1];
+    M_q[3] = M[2];
+
+    A_q[1] = A[1];
+    A_q[2] = A[0];
+    A_q[3] = -A[2];
 #endif
 
     normalizeQuat(M_q);

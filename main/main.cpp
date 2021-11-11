@@ -8,7 +8,6 @@
 #include "DCM.h"
 #include "KF.h"
 #include "NEO-M8N.h"
-// #include "ATGM336.h"
 
 #include "BT.cpp"
 #include "SD-SPI.cpp"
@@ -28,8 +27,7 @@ extern "C" void app_main(void)
     static float eulerAngles[3], eulerAngRates[3];
     static float pos[3], vel[3];
     static NEOM8N GNSS;
-    // static ATGM336 GNSS;
-    static builtin_led led;
+    builtin_led led;
     GNSS.initialize();
 
 #if LOG_SD
@@ -40,7 +38,7 @@ extern "C" void app_main(void)
     }
 #endif
 
-    // GNSS.setHome(); //TODO retirar
+    GNSS.setHome();
     IMU.setHome();
     led.blink(10, false);
 
@@ -173,9 +171,13 @@ void navTask(void* Parameters){
         DCM.getStates(navData->eulerAngles_ptr, navData->eulerAngRates_ptr);
 
 #if AXIS_CONFIG==0
-        A_E[1] = navData->A_ptr[1]*(GRAVITY);
-        A_E[2] = navData->A_ptr[0]*(GRAVITY);
-        A_E[3] = navData->A_ptr[2]*(GRAVITY);
+        A_E[1] = navData->A_ptr[1];
+        A_E[2] = navData->A_ptr[0];
+        A_E[3] = navData->A_ptr[2];
+#elif AXIS_CONFIG==1
+        A_E[1] = -(navData->A_ptr[1]);
+        A_E[2] = -(navData->A_ptr[0]);
+        A_E[3] = navData->A_ptr[2];
 #endif
 
         DCM.rotate2Earth(A_E);
