@@ -2,14 +2,16 @@
 
 // Filter Control
 #define GYRO_ERROR                      1.0
-#define GYRO_DRIFT                      0.2
+/* #define GYRO_DRIFT                      0.2 */
 #define COMPENSATE                      1
 #define WMM_LOCALFIELD                  0.8660f, 0.0f, 0.5f
 #define WMM_MAG_DECLINATION             -20.2*DEG2RAD
 #define R_0                             0.0f, 0.0f, 1.0f
 #define ANG_0                           0.0f
-#define AXIS_CONFIG                     0
-#define GNSS_FUSION_MIN_VEL             1.0f
+#define AXIS_CONFIG                     1
+#define KF_POSXY_R                      1.0, 0.2 //GNSS
+#define KF_POSXY_Q                      0.0005, 0.005 //State
+#define SHOULD_USE_MAG2                 1
 
 // Application Control
 #define SYSTEM_SAMPLE_PERIOD_MS         100
@@ -36,6 +38,8 @@
     #define LOG_SD                      0
 #endif
 
+#define UTC_DIFF                        -3
+
 // _________________________________________________________________________
 
 // GPIO and I2C Parameters
@@ -61,7 +65,8 @@
 #define GY87_CONFIG_1_ADD               0X37
 #define GY87_CONFIG_1_OPT_1             0X02 // Enable master bypass mode
 #define GY87_CONFIG_1_OPT_2             0X00 // Disable master bypass mode
-    // Mag as slave
+
+// Mag as slave
 #define GY87_CONFIG_3_ADD               0X25 // Setup Slave0 Device Address
 #define GY87_CONFIG_3_OPT               GY87_MAG_ADD | 0X80 // Read from MAG
 #define GY87_CONFIG_4_ADD               0X26 // Setup Slave0 First Register
@@ -70,14 +75,6 @@
 #define GY87_CONFIG_5_OPT               6 | 0X80 // Transfer size
 #define GY87_CONFIG_6_ADD               0X67
 #define GY87_CONFIG_6_OPT               2 | 1 // 0 delay for Mag and Baro
-
-    /* // Baro as slave */
-/* #define GY87_CONFIG_7_ADD               0X28 // Setup Slave1 Device Address */
-/* #define GY87_CONFIG_7_OPT               GY87_BARO_ADD | 0X80 // Read from baro */
-/* #define GY87_CONFIG_8_ADD               0X29 // Setup Slave1 First Register */
-/* #define GY87_CONFIG_8_OPT               GY87_BARO_REG // Read from baro */
-/* #define GY87_CONFIG_9_ADD               0X2A */
-/* #define GY87_CONFIG_9_OPT               3 | 0X80 //Transfer size */
 
 #define GY87_CONFIG_10_ADD              0XF4
 #define GY87_CONFIG_10_OPT              0X34
@@ -89,20 +86,32 @@
 #define GY87_GYRO_SENS                  1.0/131.0*DEG2RAD // Gyro sensivity
 #define GY87_TEMP_SENS                  1 // Temp sensivity
 #if APP_MODE==2
-    #define GY87_GYRO_CAL                0, 0, 0, 1, 1, 1
+    #define GY87_GYRO_CAL               0, 0, 0, 1, 1, 1
 #else
-    #define GY87_GYRO_CAL                -0.0304047, 0.00966193, 0.0254938, 1, 1, 1
+    #define GY87_GYRO_CAL               -0.0376058, 0.0255178, 0.00165873, 1, 1, 1
 #endif
 
 // MAG
 #define GY87_MAG_ADD                    0X0D
 #define GY87_CONFIG_2_ADD               0X09
 #define GY87_CONFIG_2_OPT               0XCD // Continuous Measurement Mode, Output Rate, Range, Oversampling Rate
+
+//MAG2
+#define LSM_MAG_ADD                     0X1E
+#define LSM_MAG_DATA_ADD                0X03
+#define LSM_CONFIG_1_ADD                0X00
+#define LSM_CONFIG_1_OPT                0X98 // Temp Enabled, min 75Hz Mag Output
+#define LSM_CONFIG_2_ADD                0X01
+#define LSM_CONFIG_2_OPT                0X40 // +-1.9 Gauss, sens 855 LSB/Gauss
+#define LSM_CONFIG_3_ADD                0X02
+#define LSM_CONFIG_3_OPT                0X00 // Continous-conversion mode
+
 #define GY87_MAG_SENS                   0.0833333333f // Mag sensivity
+#define LSM_MAG_SENS                    1.1695906433f // Mag2 sensivity
 #if APP_MODE==1
     #define GY87_MAG_CAL                0, 0, 0, 1, 1, 1
 #else
-    #define GY87_MAG_CAL                519.371, 515.573, 275.969, 1.12558, 0.973765, 0.912364
+    #define GY87_MAG_CAL                48.7953, 70.6023, 20.7134, 0.918624, 0.917982, 1.18585
 #endif
 
 // BARO

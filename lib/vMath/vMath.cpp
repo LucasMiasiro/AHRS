@@ -19,6 +19,16 @@ void quat2Euler(float *q, float *euler_out, const float magDeclination){
     }
 }
 
+void inv2(float M[2][2]){
+    float det, M_00;
+    M_00 = M[0][0];
+    det = M[0][0]*M[1][1] - M[1][0]*M[0][1];
+    M[0][0] = M[1][1]/det;
+    M[1][0] = -M[1][0]/det;
+    M[0][1] = -M[0][1]/det;
+    M[1][1] = M_00/det;
+}
+
 void normalize(float *in, int len){
     dsps_mulc_f32_ae32(in, in, len, 1/norm2(in, len), 1, 1);
 }
@@ -46,6 +56,14 @@ void matProd_3x3x1(float *in1, float *in2, float *out){
 
 void matProd_4x6x1(float *in1, float *in2, float *out){
     dspm_mult_f32_ae32(in1, in2, out, 4, 6, 1);
+}
+
+void matProd_2x2x2(float *in1, float *in2, float *out){
+    dspm_mult_f32_ae32(in1, in2, out, 2, 2, 2);
+}
+
+void matProd_2x2x1(float *in1, float *in2, float *out){
+    dspm_mult_f32_ae32(in1, in2, out, 2, 2, 1);
 }
 
 void quatAdd(float *in1, float *in2, float *out){

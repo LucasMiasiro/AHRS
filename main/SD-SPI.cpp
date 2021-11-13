@@ -16,6 +16,7 @@
 #include "dirent.h"
 #include "config.h"
 #include "time.h"
+#include "NEO-M8N.h"
 
 #if CONFIG_IDF_TARGET_ESP32S2
 #define SPI_DMA_CHAN    host.slot
@@ -63,7 +64,13 @@ void write(float *x[], const uint8_t len, const uint8_t arrayLen){
     fprintf(f, "\n");
 }
 
-void writeHeader(){
+void writeHeader(NEOM8N* GNSS){
+    fprintf(f, "%u/", GNSS->GNSS.date.day);
+    fprintf(f, "%u/", GNSS->GNSS.date.month);
+    fprintf(f, "%u    ", GNSS->GNSS.date.year);
+    fprintf(f, "%i:", GNSS->GNSS.tim.hour + UTC_DIFF);
+    fprintf(f, "%u:", GNSS->GNSS.tim.minute);
+    fprintf(f, "%u\n", GNSS->GNSS.tim.second);
 }
 
 void save(){
@@ -152,7 +159,6 @@ bool startSD(void){
     if(!initializeFileHandle()){
         return 0;
     }
-    writeHeader();
     return 1;
 }
 
