@@ -6,7 +6,7 @@
 #include "serial-logger.h"
 
 void DCM::getStates(float *eulerAngles, float *eulerRates){
-    quat2Euler(q, eulerAngles);
+    quat2Euler(q, eulerAngles, WMM_MAG_DECLINATION);
 }
 
 void DCM::update(float* A, float* G, float* M){
@@ -73,6 +73,18 @@ void DCM::initializeVariables(float* A, float *G, float *M){
 
     A_q[1] = -A[1];
     A_q[2] = -A[0];
+    A_q[3] = -A[2];
+#elif AXIS_CONFIG==1
+    G_q[1] = G[1];
+    G_q[2] = G[0];
+    G_q[3] = -G[2];
+
+    M_q[1] = M[0];
+    M_q[2] = M[1];
+    M_q[3] = M[2];
+
+    A_q[1] = A[1];
+    A_q[2] = A[0];
     A_q[3] = -A[2];
 #endif
 
@@ -150,6 +162,31 @@ void DCM::initializeAccelTransposedJacobian(float Matrix[4][6], float *f){
     f[0] = 2.0*(q[1]*q[3] - q[0]*q[2]) - A_q[1];
     f[1] = 2.0*(q[0]*q[1] + q[2]*q[3]) - A_q[2];
     f[2] = 2.0*(0.5 - q[1]*q[1] - q[2]*q[2]) - A_q[3];
+}
+
+void DCM::rotate2Earth(float *v){
+    quatConj(q, buf_q);
+    quatProd(v, buf_q, buf2_q);
+    quatProd(q, buf2_q, v);
+}
+
+void DCM::rotate2Earth(float M[3][3], float v[3]){
+    getDCM(M, q);
+    matProd_3x3x1(&M[0][0], v, v);
+}
+
+void DCM::getDCM(float M[3][3], float *q){
+    M[0][0] = 1 - 2.0*q[2]*q[2] - 2.0*q[3]*q[3];
+    M[1][0] = 2.0*(q[1]*q[2] - q[0]*q[3]);
+    M[2][0] = 2.0*(q[1]*q[3] + q[0]*q[2]);
+
+    M[0][1] = 2.0*(q[1]*q[2] + q[0]*q[3]);
+    M[1][1] = 1 - 2.0*q[1]*q[1] - 2.0*q[3]*q[3];
+    M[2][1] = 2.0*(q[2]*q[3] - q[0]*q[1]);
+
+    M[0][2] = 2.0*(q[1]*q[3] - q[0]*q[2]);
+    M[1][2] = 2.0*(q[2]*q[3] + q[0]*q[1]);
+    M[2][2] = 1 - 2.0*q[1]*q[1] - 2.0*q[2]*q[2];
 }
 
 DCM::DCM(){

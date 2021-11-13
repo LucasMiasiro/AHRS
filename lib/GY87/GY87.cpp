@@ -22,12 +22,47 @@ bool GY87::accumulateData(){
     M_raw_accum[1] += M_raw[1];
     M_raw_accum[2] += M_raw[2];
 
+    B_raw_accum += B_raw;
+
     N_samples++;
 
     return 0;
 }
 
-bool GY87::getData(float* A, float* G, float* M){
+void GY87::setHome(){
+    float A_temp[3], G_temp[3], M_temp[3], B_temp = 0;
+    float B_accum = 0;
+    uint8_t N_accum = 0;
+
+    for (int j = 0; j < 10; j++){
+        accumulateData();
+    }
+    getData(A_temp, G_temp, M_temp, &B_temp);
+
+    for (int j = 0; j < 10; j++){
+        accumulateData();
+    }
+    calcTruePressureAccum();
+    lastB = calcAlt();
+    cleanAccum();
+
+    for (int i = 0; i < 10; i++){
+        for (int j = 0; j < 20; j++){
+            accumulateData();
+        }
+        getData(A_temp, G_temp, M_temp, &B_temp);
+        B_accum += B_temp;
+        N_accum++;
+    }
+
+    Home_Alt = B_accum/N_accum;
+    lastB = Home_Alt;
+}
+
+bool GY87::getData(float* A, float* G, float* M, float* B){
+
+    baroState = SHOULD_READ_TEMP;
+
     if (N_samples == 0){
         *A = A_raw[0]*GY87_ACCEL_SENS;
         *(A+1) = A_raw[1]*GY87_ACCEL_SENS;
@@ -37,9 +72,19 @@ bool GY87::getData(float* A, float* G, float* M){
         *(G+1) = G_raw[1]*GY87_GYRO_SENS - gyroCal[1];
         *(G+2) = G_raw[2]*GY87_GYRO_SENS - gyroCal[2];
 
+#if SHOULD_USE_MAG2
+        *M = (M_raw[0]*LSM_MAG_SENS - magCal[0])*magCal[3];
+        *(M+1) = (M_raw[1]*LSM_MAG_SENS - magCal[1])*magCal[4];
+        *(M+2) = (M_raw[2]*LSM_MAG_SENS - magCal[2])*magCal[5];
+#else
         *M = (M_raw[0]*GY87_MAG_SENS - magCal[0])*magCal[3];
         *(M+1) = (M_raw[1]*GY87_MAG_SENS - magCal[1])*magCal[4];
         *(M+2) = (M_raw[2]*GY87_MAG_SENS - magCal[2])*magCal[5];
+#endif
+
+        calcTruePressure();
+        *B = 0.2*calcAlt() + 0.8*lastB;
+        lastB = *B;
 
         return 1;
     }
@@ -52,11 +97,21 @@ bool GY87::getData(float* A, float* G, float* M){
     *(G+1) = G_raw_accum[1]*GY87_GYRO_SENS/N_samples - gyroCal[1];
     *(G+2) = G_raw_accum[2]*GY87_GYRO_SENS/N_samples - gyroCal[2];
 
+#if SHOULD_USE_MAG2
+    *M = (M_raw_accum[0]*LSM_MAG_SENS/N_samples - magCal[0])*magCal[3];
+    *(M+1) = (M_raw_accum[1]*LSM_MAG_SENS/N_samples - magCal[1])*magCal[4];
+    *(M+2) = (M_raw_accum[2]*LSM_MAG_SENS/N_samples - magCal[2])*magCal[5];
+#else
     *M = (M_raw_accum[0]*GY87_MAG_SENS/N_samples - magCal[0])*magCal[3];
     *(M+1) = (M_raw_accum[1]*GY87_MAG_SENS/N_samples - magCal[1])*magCal[4];
     *(M+2) = (M_raw_accum[2]*GY87_MAG_SENS/N_samples - magCal[2])*magCal[5];
+#endif
 
     magModule = sqrt((*M)*(*M) + (*(M+1))*(*(M+1)) + (*(M+2))*(*(M+2)));
+
+    calcTruePressureAccum();
+    *B = 0.2*calcAlt() + 0.8*lastB;
+    lastB = *B;
 
     cleanAccum();
 
@@ -64,7 +119,7 @@ bool GY87::getData(float* A, float* G, float* M){
 }
 
 bool GY87::calibrateMag(float *mag_min_max){
-    float A_temp[3], G_temp[3], M_temp[3];
+    float A_temp[3], G_temp[3], M_temp[3], B_temp;
     float magCal_temp[6] = {0};
     float rx, ry, rz, r, mag1, mag2, mag3;
     bool newMax = 0;
@@ -73,7 +128,7 @@ bool GY87::calibrateMag(float *mag_min_max){
         accumulateData();
     }
     
-    getData(A_temp, G_temp, M_temp);
+    getData(A_temp, G_temp, M_temp, &B_temp);
 
     mag1 = M_temp[0];
     mag2 = M_temp[1];
@@ -134,7 +189,7 @@ bool GY87::calibrateMag(float *mag_min_max){
 };
 
 bool GY87::gyroCalibrationLoop(){
-    float A_temp[3], G_temp[3], M_temp[3];
+    float A_temp[3], G_temp[3], M_temp[3], B_temp;
     static builtin_led Led;
     static bool ledState = 0;
 
@@ -142,7 +197,7 @@ bool GY87::gyroCalibrationLoop(){
         accumulateData();
     }
     
-    getData(A_temp, G_temp, M_temp);
+    getData(A_temp, G_temp, M_temp, &B_temp);
 
     std::cout << G_temp[0] << ", ";
     std::cout << G_temp[1] << ", ";
@@ -189,6 +244,7 @@ bool GY87::cleanAccum(){
     M_raw_accum[0] = 0;
     M_raw_accum[1] = 0;
     M_raw_accum[2] = 0;
+    B_raw_accum = 0;
 
 #if LOG_TIMER
     serialLogger::logUInt16(&N_samples, "NSMP");
@@ -200,7 +256,6 @@ bool GY87::cleanAccum(){
 }
 
 GY87::GY87(){
-    uint8_t opt;
 
     setup_i2c();
 
@@ -225,6 +280,7 @@ GY87::GY87(){
     opt = GY87_USER_CTRL_OPT_2;
     write(&opt, 1, GY87_IMU_ADD, GY87_USER_CTRL_ADD);
 
+    // ---------------------------------------------
     // IMU should read MAG
     opt = GY87_CONFIG_3_OPT;
     write(&opt, 1, GY87_IMU_ADD, GY87_CONFIG_3_ADD);
@@ -237,15 +293,135 @@ GY87::GY87(){
 
     opt = GY87_CONFIG_6_OPT;
     write(&opt, 1, GY87_IMU_ADD, GY87_CONFIG_6_ADD);
+
+#if SHOULD_USE_MAG2
+    opt = LSM_CONFIG_1_OPT;
+    write(&opt, 1, LSM_MAG_ADD, LSM_CONFIG_1_ADD);
+
+    opt = LSM_CONFIG_2_OPT;
+    write(&opt, 1, LSM_MAG_ADD, LSM_CONFIG_2_ADD);
+
+    opt = LSM_CONFIG_3_OPT;
+    write(&opt, 1, LSM_MAG_ADD, LSM_CONFIG_3_ADD);
+#endif
+
+    getBaroCal();
+    setPressureMeas();
 };
 
-bool GY87::readData(){
-    uint8_t buffer[20];
-    esp_err_t read_OK = read(buffer, 20, GY87_IMU_ADD, GY87_IMU_DATA_ADD);
+void GY87::getBaroCal(){
+    read(buffer, 22, GY87_BARO_ADD, GY87_BARO_CALIB_REG);
+    AC1 = (buffer[0] << 8 | buffer[1]);
+    AC2 = (buffer[2] << 8 | buffer[3]);
+    AC3 = (buffer[4] << 8 | buffer[5]);
+    AC4 = (buffer[6] << 8 | buffer[7]);
+    AC5 = (buffer[8] << 8 | buffer[9]);
+    AC6 = (buffer[10] << 8 | buffer[11]);
+    B1 = (buffer[12] << 8 | buffer[13]);
+    B2 = (buffer[14] << 8 | buffer[15]);
+    MB = (buffer[16] << 8 | buffer[17]);
+    MC = (buffer[18] << 8 | buffer[19]);
+    MD = (buffer[20] << 8 | buffer[21]);
+}
 
-    if (read_OK != ESP_OK){
+void GY87::calcTruePressureAccum(){
+    X1 = (T_raw - AC6) * AC5 / 32768;
+    X2 = MC * 2048 / (X1 + MD);
+    B5 = X1 + X2;
+    T = (B5 + 8) / 16;
+
+    B6 = B5 - 4000;
+    X1 = (B2 * (B6 * B6 / 4096)) / 2048;
+    X2 = AC2 * B6 / 2048;
+    X3 = X1 + X2;
+    B3 = (AC1 * 4 + X3 + 2) / 4;
+    X1 = AC3 * B6 / 8192;
+    X2 = (B1 * (B6 * B6 / 4096)) / 65536;
+    X3 = (X1 + X2 + 2) / 4;
+    B4 = AC4 * (uint32_t)(X3 + 32768) / 32768;
+    B7 = ((uint32_t)(B_raw_accum/N_samples) - B3) * 50000;
+    if (B7 < 0X80000000) {
+        p = (B7 * 2) / B4;
+    } else {
+        p = (B7 / B4) * 2;
+    }
+    X1 = (p / 256) * (p / 256);
+    X1 = (X1 * 3038) / 65536;
+    X2 = (-7357 * p) / 65536;
+    p = p + (X1 + X2 + 3791) / 16;
+}
+
+void GY87::calcTruePressure(){
+    X1 = (T_raw - AC6) * AC5 / 32768;
+    X2 = MC * 2048 / (X1 + MD);
+    B5 = X1 + X2;
+    T = (B5 + 8) / 16;
+
+    B6 = B5 - 4000;
+    X1 = (B2 * (B6 * B6 / 4096)) / 2048;
+    X2 = AC2 * B6 / 2048;
+    X3 = X1 + X2;
+    B3 = (AC1 * 4 + X3 + 2) / 4;
+    X1 = AC3 * B6 / 8192;
+    X2 = (B1 * (B6 * B6 / 4096)) / 65536;
+    X3 = (X1 + X2 + 2) / 4;
+    B4 = AC4 * (uint32_t)(X3 + 32768) / 32768;
+    B7 = ((uint32_t)(B_raw) - B3) * 50000;
+    if (B7 < 0X80000000) {
+        p = (B7 * 2) / B4;
+    } else {
+        p = (B7 / B4) * 2;
+    }
+    X1 = (p / 256) * (p / 256);
+    X1 = (X1 * 3038) / 65536;
+    X2 = (-7357 * p) / 65536;
+    p = p + (X1 + X2 + 3791) / 16;
+}
+
+
+float GY87::calcAlt(){
+    fbuffer = (float)p/101325.0f;
+    fbuffer = 44330.0f * (1.0 - pow(fbuffer, 0.190295f));
+    return fbuffer;
+}
+
+void GY87::setPressureMeas(){
+    opt = GY87_CONFIG_10_OPT;
+    write(&opt, 1, GY87_BARO_ADD, GY87_CONFIG_10_ADD);
+}
+
+void GY87::setTemperatureMeas(){
+    opt = GY87_CONFIG_11_OPT;
+    write(&opt, 1, GY87_BARO_ADD, GY87_CONFIG_11_ADD);
+}
+
+bool GY87::readData(){
+
+#if SHOULD_USE_MAG2
+
+    if (read(buffer, 14, GY87_IMU_ADD, GY87_IMU_DATA_ADD) != ESP_OK){
         return 1;
     }
+
+    A_raw[0] = (buffer[0] << 8 | buffer[1]);
+    A_raw[1] = (buffer[2] << 8 | buffer[3]);
+    A_raw[2] = (buffer[4] << 8 | buffer[5]);
+
+    G_raw[0] = (buffer[8] << 8 | buffer[9]);
+    G_raw[1] = (buffer[10] << 8 | buffer[11]);
+    G_raw[2] = (buffer[12] << 8 | buffer[13]);
+
+    if (read(buffer, 6, LSM_MAG_ADD, LSM_MAG_DATA_ADD) != ESP_OK){
+        return 1;
+    }
+
+    M_raw[0] = (buffer[0] << 8 | buffer[1]);
+    M_raw[1] = (buffer[4] << 8 | buffer[5]);
+    M_raw[2] = (buffer[2] << 8 | buffer[3]);
+
+#else
+
+    if (read(buffer, 20, GY87_IMU_ADD, GY87_IMU_DATA_ADD) != ESP_OK){
 
     A_raw[0] = (buffer[0] << 8 | buffer[1]);
     A_raw[1] = (buffer[2] << 8 | buffer[3]);
@@ -258,6 +434,40 @@ bool GY87::readData(){
     M_raw[0] = (buffer[15] << 8 | buffer[14]);
     M_raw[1] = (buffer[17] << 8 | buffer[16]);
     M_raw[2] = (buffer[19] << 8 | buffer[18]);
+
+#endif
+
+    switch (baroState) {
+        case (SHOULD_READ_TEMP):
+            setTemperatureMeas();
+            baroState = WAIT_FOR_TEMP;
+            break;
+
+        case (WAIT_FOR_TEMP):
+            baroState = READ_TEMP;
+            break;
+
+        case (READ_TEMP):
+            read(buffer, 2, GY87_BARO_ADD, GY87_BARO_REG);
+            T_raw = (buffer[0] << 8 | buffer[1]);
+            baroState = SHOULD_READ_PRESSURE;
+            break;
+
+        case (SHOULD_READ_PRESSURE):
+            setPressureMeas();
+            baroState = WAIT_FOR_PRESSURE;
+            break;
+
+        case (WAIT_FOR_PRESSURE):
+            baroState = READ_PRESSURE;
+            break;
+
+        case (READ_PRESSURE):
+            read(buffer, 2, GY87_BARO_ADD, GY87_BARO_REG);
+            B_raw = (buffer[0] << 8 | buffer[1]);
+            baroState = SHOULD_READ_PRESSURE;
+            break;
+    }
 
     return 0;
 }

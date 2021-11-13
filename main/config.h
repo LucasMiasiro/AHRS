@@ -1,13 +1,17 @@
 #pragma once
 
 // Filter Control
-#define GYRO_ERROR                      2
-#define GYRO_DRIFT                      0.2
+#define GYRO_ERROR                      1.0
+/* #define GYRO_DRIFT                      0.2 */
 #define COMPENSATE                      1
 #define WMM_LOCALFIELD                  0.8660f, 0.0f, 0.5f
+#define WMM_MAG_DECLINATION             -20.2*DEG2RAD
 #define R_0                             0.0f, 0.0f, 1.0f
 #define ANG_0                           0.0f
-#define AXIS_CONFIG                     0
+#define AXIS_CONFIG                     1
+#define KF_POSXY_R                      1.0, 0.2 //GNSS
+#define KF_POSXY_Q                      0.0005, 0.005 //State
+#define SHOULD_USE_MAG2                 1
 
 // Application Control
 #define SYSTEM_SAMPLE_PERIOD_MS         100
@@ -19,20 +23,26 @@
     #define LOG_GY87                    0
     #define LOG_DCM                     0
     #define LOG_TIMER                   0
-    #define LOG_ATGM336                 1
-    #define SEND_MODE                   2
+    #define LOG_ATGM336                 0
+    #define LOG_NEOM8N                  0
+    #define SEND_MODE                   1
+    #define LOG_SD                      1
 #else
     #define LOG_MAIN                    0
     #define LOG_GY87                    0
     #define LOG_DCM                     0
     #define LOG_TIMER                   0
     #define LOG_ATGM336                 0
+    #define LOG_NEOM8N                  0
     #define SEND_MODE                   0
+    #define LOG_SD                      0
 #endif
+
+#define UTC_DIFF                        -3
 
 // _________________________________________________________________________
 
-// GIOP and I2C Param
+// GPIO and I2C Parameters
 #define BUILTIN_LED                     GPIO_NUM_2
 #define GY87_SDA_IO                     21
 #define GY87_SCL_IO                     22
@@ -55,50 +65,96 @@
 #define GY87_CONFIG_1_ADD               0X37
 #define GY87_CONFIG_1_OPT_1             0X02 // Enable master bypass mode
 #define GY87_CONFIG_1_OPT_2             0X00 // Disable master bypass mode
-#define GY87_CONFIG_3_ADD               0X25
+
+// Mag as slave
+#define GY87_CONFIG_3_ADD               0X25 // Setup Slave0 Device Address
 #define GY87_CONFIG_3_OPT               GY87_MAG_ADD | 0X80 // Read from MAG
-#define GY87_CONFIG_4_ADD               0X26
+#define GY87_CONFIG_4_ADD               0X26 // Setup Slave0 First Register
 #define GY87_CONFIG_4_OPT               0X00 // Data register
 #define GY87_CONFIG_5_ADD               0X27
 #define GY87_CONFIG_5_OPT               6 | 0X80 // Transfer size
 #define GY87_CONFIG_6_ADD               0X67
-#define GY87_CONFIG_6_OPT               1 // 0 delay
+#define GY87_CONFIG_6_OPT               2 | 1 // 0 delay for Mag and Baro
+
+#define GY87_CONFIG_10_ADD              0XF4
+#define GY87_CONFIG_10_OPT              0X34
+#define GY87_CONFIG_11_ADD              0XF4
+#define GY87_CONFIG_11_OPT              0X2E
+
 #define GY87_IMU_DATA_ADD               0X3B // First accel data address
 #define GY87_ACCEL_SENS                 -1.0/16384/1.05f // Accel sensivity
 #define GY87_GYRO_SENS                  1.0/131.0*DEG2RAD // Gyro sensivity
 #define GY87_TEMP_SENS                  1 // Temp sensivity
 #if APP_MODE==2
-    #define GY87_GYRO_CAL                0, 0, 0, 1, 1, 1
+    #define GY87_GYRO_CAL               0, 0, 0, 1, 1, 1
 #else
-    #define GY87_GYRO_CAL                -0.0304047, 0.00966193, 0.0254938, 1, 1, 1
+    #define GY87_GYRO_CAL               -0.0376058, 0.0255178, 0.00165873, 1, 1, 1
 #endif
 
 // MAG
 #define GY87_MAG_ADD                    0X0D
 #define GY87_CONFIG_2_ADD               0X09
 #define GY87_CONFIG_2_OPT               0XCD // Continuous Measurement Mode, Output Rate, Range, Oversampling Rate
+
+//MAG2
+#define LSM_MAG_ADD                     0X1E
+#define LSM_MAG_DATA_ADD                0X03
+#define LSM_CONFIG_1_ADD                0X00
+#define LSM_CONFIG_1_OPT                0X98 // Temp Enabled, min 75Hz Mag Output
+#define LSM_CONFIG_2_ADD                0X01
+#define LSM_CONFIG_2_OPT                0X40 // +-1.9 Gauss, sens 855 LSB/Gauss
+#define LSM_CONFIG_3_ADD                0X02
+#define LSM_CONFIG_3_OPT                0X00 // Continous-conversion mode
+
 #define GY87_MAG_SENS                   0.0833333333f // Mag sensivity
+#define LSM_MAG_SENS                    1.1695906433f // Mag2 sensivity
 #if APP_MODE==1
     #define GY87_MAG_CAL                0, 0, 0, 1, 1, 1
 #else
-    #define GY87_MAG_CAL                526.477, 559.228, 270.432, 1.1153, 0.98743, 0.908038
+    #define GY87_MAG_CAL                48.7953, 70.6023, 20.7134, 0.918624, 0.917982, 1.18585
 #endif
 
-// Constants
-#define GRAVITY                         9.80665 // Gravity
-#define DEG2RAD                         0.0174532925f //PI/180
+// BARO
+#define GY87_BARO_ADD                   0X77
+#define GY87_BARO_REG                   0XF6
+#define GY87_BARO_CALIB_REG             0XAA
 
-// BLUETOOTH
-#define SPP_TAG             "INS"
-#define SPP_SERVER_NAME     "INS_SERVER"
-#define BT_INIT_MSG         "Welcome\n"
-#define BT_RECEIVED_MSG     "Received: "
-#define BT_DEVICE_NAME      "Embedded Navigation System"
-#define BT_SEND_MSG_EULER   "E"
-#define BT_SEND_MSG_MAG     "M"
-#define BT_BUFFERSIZE       20
+// Constants
+#define GRAVITY                         9.80665
+#define DEG2RAD                         0.0174532925f // pi/180
+#define EARTH_FLATTENING                0.00335281f
+#define EARTH_EQUATORIAL_RADIUS         6378137.0f
+#define PI                              3.14159265359f
+
+// Bluetooth
+#define SPP_TAG                         "INS"
+#define SPP_SERVER_NAME                 "INS_SERVER"
+#define BT_INIT_MSG                     "Welcome\n"
+#define BT_RECEIVED_MSG                 "Received: "
+#define BT_DEVICE_NAME                  "Embedded Navigation System"
+#define BT_SEND_MSG_EULER               "E"
+#define BT_SEND_MSG_MAG                 "M"
+#define BT_BUFFERSIZE                   20
 
 // GNSS
-#define GNSS_TASK_KB        4
-#define GNSS_TASK_CORE      1
-#define GNSS_TASK_PRIORITY  1
+#define GNSS_TASK_KB                    4
+#define GNSS_TASK_CORE                  1
+#define GNSS_TASK_PRIORITY              1
+#define GNSS_MIN_SATS                   3
+#define GNSS_RX_IO                      16
+#define GNSS_BAUD                       9600
+/* #define GNSS_CONV_TIME_S                20 */
+#define GNSS_CONV_TIME_S                10
+#define GNSS_CONV_VEL                   0.5f
+#define GNSS_HOME_REQ_3D                0
+
+// SD SPI
+#define SD_MOUNT_POINT                  "/sdcard"
+#define SD_MISO_IO                      12
+#define SD_MOSI_IO                      13
+#define SD_CLK_IO                       14
+#define SD_CS_IO                        15
+#define SD_MAX_SEARCH_LEN               10
+#define SD_BUFFERSIZE                   20
+#define SD_MAX_FREQ_HZ                  10000
+#define SD_WRITE_UNTIL_SAVE             10
