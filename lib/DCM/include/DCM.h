@@ -12,7 +12,7 @@ private:
     float grad_f_normalized[4];
 
     const float beta = sqrt(3.0/4.0f)*GYRO_ERROR*DEG2RAD;
-    const float zeta = sqrt(3.0/4.0f)*GYRO_DRIFT*DEG2RAD;
+    /* const float zeta = sqrt(3.0/4.0f)*GYRO_DRIFT*DEG2RAD; */
     float buf_q[4] = {0.0f};
     float buf2_q[4] = {0.0f};
     float G_q[4] = {0.0f};

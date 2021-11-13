@@ -100,6 +100,11 @@ void NEOM8N::calcFlatEarthParameters(){
 
     K_N = DEG2RAD/atan2f(1, R_M);
     K_E = DEG2RAD/atan2f(1, R_N*cos(Home_LatLon[0]*DEG2RAD));
+
+#if LOG_NEOM8N
+    serialLogger::logFloat(&K_N, 1, "K_N");
+    serialLogger::logFloat(&K_E, 1, "K_E");
+#endif
 }
 
 void NEOM8N::getPos(float *posX, float *posY){

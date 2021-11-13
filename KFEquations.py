@@ -32,7 +32,7 @@ Q = Matrix([
 R = Matrix([
             [R0, 0],
             [0, R1]
-             ])
+            ])
 
 Ppriori = A*Matrix(Pp)*transpose(A)
 Ppriori = simplify(Ppriori) + Q

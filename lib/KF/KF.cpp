@@ -29,7 +29,11 @@ void KF::correct(){
         fuseGNSS();
         _navData->GNSS_ptr->newData = 0;
     }
+    
+    fuseBaro();
+}
 
+void KF::fuseBaro(){
     states[2] = _navData->IMU_ptr->Home_Alt - *(_navData->B_ptr);
     states[5] = 0;
 }

@@ -2,14 +2,16 @@
 
 // Filter Control
 #define GYRO_ERROR                      1.0
-#define GYRO_DRIFT                      0.2
+/* #define GYRO_DRIFT                      0.2 */
 #define COMPENSATE                      1
 #define WMM_LOCALFIELD                  0.8660f, 0.0f, 0.5f
 #define WMM_MAG_DECLINATION             -20.2*DEG2RAD
 #define R_0                             0.0f, 0.0f, 1.0f
 #define ANG_0                           0.0f
 #define AXIS_CONFIG                     1
-#define GNSS_FUSION_MIN_VEL             1.0f
+#define KF_POSXY_R                      1.0, 0.2 //GNSS
+#define KF_POSXY_Q                      0.0005, 0.005 //State
+#define SHOULD_USE_MAG2                 1
 
 // Application Control
 #define SYSTEM_SAMPLE_PERIOD_MS         100
@@ -24,7 +26,7 @@
     #define LOG_ATGM336                 0
     #define LOG_NEOM8N                  0
     #define SEND_MODE                   1
-    #define LOG_SD                      0
+    #define LOG_SD                      1
 #else
     #define LOG_MAIN                    0
     #define LOG_GY87                    0
@@ -36,7 +38,7 @@
     #define LOG_SD                      0
 #endif
 
-#define SHOULD_USE_MAG2                 1
+#define UTC_DIFF                        -3
 
 // _________________________________________________________________________
 

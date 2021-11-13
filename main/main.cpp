@@ -42,6 +42,10 @@ extern "C" void app_main(void)
     IMU.setHome();
     led.blink(10, false);
 
+#if LOG_SD
+    SD::writeHeader(&GNSS);
+#endif
+
     static navData_ptr navData = {.IMU_ptr = &IMU,
                                 .GNSS_ptr = &GNSS,
                                 .A_ptr = A,
@@ -230,8 +234,7 @@ void sendTask(void* Parameters){
 
 #if LOG_SD
         timeData[0] = esp_timer_get_time()/1000.0f;
-        timeData[1] = navData->GNSS_ptr->GNSS.latitude;
-        timeData[2] = navData->GNSS_ptr->GNSS.longitude;
+        navData->GNSS_ptr->getPos(&timeData[1], &timeData[2]);
         SD::write(logSDData_ptr, 3, 4);
         count++;
         if (count > nSave){
@@ -251,7 +254,6 @@ void sendTask(void* Parameters){
     }
 }
 #endif
-
 
 void gyroCalTask(void* Parameters){
     navData_ptr* navData = (navData_ptr*) Parameters;

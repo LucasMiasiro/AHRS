@@ -12,11 +12,11 @@ private:
     float buf_6[6] = {0};
     float meas[6] = {0};
 
-    const float Qx[2] = {0.1, 0.1};
-    const float Qy[2] = {0.1, 0.1};
+    const float Qx[2] = {KF_POSXY_Q};
+    const float Qy[2] = {KF_POSXY_Q};
     const float Qz[2] = {0.1, 0.1};
-    const float Rx[2] = {0.1, 0.1};
-    const float Ry[2] = {0.1, 0.1};
+    const float Rx[2] = {KF_POSXY_R};
+    const float Ry[2] = {KF_POSXY_R};
     const float Rz[2] = {0.1, 0.1};
 
     float Px[2][2] = {{0.1, 0.0},
@@ -41,6 +41,7 @@ private:
     void predict(float*);
     void correct();
     void fuseGNSS();
+    void fuseBaro();
     void reset();
 
     DCM *_DCM;
