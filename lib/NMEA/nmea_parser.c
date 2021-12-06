@@ -27,7 +27,8 @@
  *
  */
 #define NMEA_PARSER_RUNTIME_BUFFER_SIZE (CONFIG_NMEA_PARSER_RING_BUFFER_SIZE / 2)
-#define NMEA_MAX_STATEMENT_ITEM_LENGTH (16)
+/* #define NMEA_MAX_STATEMENT_ITEM_LENGTH (16) */
+#define NMEA_MAX_STATEMENT_ITEM_LENGTH (24)
 #define NMEA_EVENT_LOOP_QUEUE_SIZE (16)
 
 /**
@@ -69,6 +70,7 @@ typedef struct {
  */
 static float parse_lat_long(esp_gps_t *esp_gps)
 {
+    printf("Received %s\n", esp_gps->item_str);
     float ll = strtof(esp_gps->item_str, NULL);
     int deg = ((int)ll) / 100;
     float min = ll - (deg * 100);

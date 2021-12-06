@@ -85,7 +85,7 @@ extern "C" void app_main(void)
                             &navData,
                             2,
                             &sendTask_h,
-                            1);
+                            1); //TODO mudar para Core 0?
 
 #elif SEND_MODE==2
 
