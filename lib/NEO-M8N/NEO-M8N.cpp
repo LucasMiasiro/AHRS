@@ -55,18 +55,20 @@ void NEOM8N::setHome(){
 
     while(count < GNSS_CONV_TIME_S){
 
-#if GNSS_HOME_REQ_3D
+#if GNSS_HOME_REQ_3D==1
         is3DFixed = (GNSS.fix > GPS_FIX_INVALID) && 
                     (GNSS.fix_mode == GPS_MODE_3D) &&
                     (GNSS.sats_in_use > GNSS_MIN_SATS) &&
                     (GNSS.latitude != 0) &&
                     (GNSS.longitude != 0);
-#else
+#elif GNSS_HOME_REQ_3D==2
         is3DFixed = (GNSS.fix > GPS_FIX_INVALID) && 
                     (GNSS.fix_mode >= GPS_MODE_2D) &&
                     (GNSS.sats_in_use > GNSS_MIN_SATS) &&
                     (GNSS.latitude != 0) &&
                     (GNSS.longitude != 0);
+#else
+        is3DFixed = true;
 #endif
 
         reachedConvergence = (GNSS.speed < GNSS_CONV_VEL);
