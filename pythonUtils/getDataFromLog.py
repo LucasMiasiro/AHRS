@@ -1,29 +1,36 @@
-from matplotlib import pyplot as plt, rcParams, use
+from matplotlib import pyplot as plt, rcParams
 import matplotlib
 import matplotlib.cm as cmx
+import numpy as np
 
 from pythonUtils.plotAxis import plotAxis
 rcParams['grid.linewidth'] = 1.6
 # plt.style.use('seaborn-darkgrid')
 rcParams['axes.facecolor'] = [0.93, 0.93, 0.93, 1.0]
+matplotlib.rcParams['mathtext.fontset'] = 'stix'
+matplotlib.rcParams['font.family'] = 'STIXGeneral'
+
 import math as m
 import pandas as pd
 
 def plotAxis(figSize, axisLimits):
 
     fig = plt.figure(figsize = figSize, tight_layout = True, facecolor = None)
-    ax = fig.add_subplot(1, 1, 1, aspect='auto', projection = '3d')
+    ax = fig.add_subplot(1, 1, 1, projection = '3d')
     # ax.set_box_aspect([1,1,1])
-    ax.w_xaxis.set_pane_color((0.93, 0.93, 0.93, 1.0))
-    ax.w_yaxis.set_pane_color((0.93, 0.93, 0.93, 1.0))
-    ax.w_zaxis.set_pane_color((0.93, 0.93, 0.93, 1.0))
-    ax.set_xlabel(r'x')
-    ax.set_ylabel(r'y')
-    ax.set_zlabel(r'z')
+    # ax.w_xaxis.set_pane_color((0.93, 0.93, 0.93, 1.0))
+    # ax.w_yaxis.set_pane_color((0.93, 0.93, 0.93, 1.0))
+    # ax.w_zaxis.set_pane_color((0.93, 0.93, 0.93, 1.0))
+    ax.set_xlabel(r'$x~[m]$')
+    ax.set_ylabel(r'$y~[m]$')
+    ax.set_zlabel(r'$z~[m]$')
     ax.set_xlim(axisLimits[0])
     ax.set_ylim(axisLimits[1])
     ax.set_zlim(axisLimits[2])
+    ax.invert_xaxis()
+    # ax.invert_yaxis()
     ax.invert_zaxis()
+    ax.view_init(30, 45)
 
     return plt, fig, ax
 
@@ -69,6 +76,11 @@ def plotTrajectory(df, labels, figSize, fileout = None):
 
     ax.scatter(df[labels[0][6]], df[labels[0][7]], df[labels[0][8]],
                 c = scalarMap.to_rgba(t), marker = 'o')
+
+    ax.set_box_aspect((np.ptp(df[labels[0][6]]),
+                        np.ptp(df[labels[0][7]]),
+                        10*np.ptp(df[labels[0][8]])))
+
     ax.plot(df[labels[0][6]], df[labels[0][7]], df[labels[0][8]],
                 alpha = 1.0, color = 'k', ls = '-', lw = '0.5')
 
@@ -80,7 +92,17 @@ def plotTrajectory(df, labels, figSize, fileout = None):
     plt.show()
 
 def plotLatLon(df, labels, figSize, axisLimits = None, fileout = None):
-    fig = plt.scatter(x = df[labels[0][1]], y = df[labels[0][2]])
+
+    fig, ax = plt.subplots(ncols = 1, nrows = 1,
+                        figsize = figSize,
+                        tight_layout = True)
+
+    ax.set(xlabel = r'$y~[m]$', ylabel = r'$x~[m]$')
+
+    ax.plot(df[labels[0][2]], df[labels[0][1]], ls = '-', color = 'royalblue',
+                marker = 'o', markeredgecolor = 'k', mew = 1.2)
+    ax.axis('equal')
+    ax.grid()
 
     if fileout is not None:
         plt.savefig(fileout, dpi = 400)

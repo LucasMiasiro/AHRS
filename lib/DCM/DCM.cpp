@@ -29,6 +29,24 @@ void DCM::update(float* A, float* G, float* M){
     filterFusion();
 }
 
+void DCM::initializeFilter(float M[3]){
+    const float r[3] = {R_0};
+    float ang = atan2f(M[1], M[0]);
+
+    if (ang < -PI) {
+        ang += 2*PI;
+    } else if (ang > PI) {
+        ang -= 2*PI;
+    }
+
+    q[0] = cos(ang/2);
+    q[1] = -r[0]*sin(ang/2);
+    q[2] = -r[1]*sin(ang/2);
+    q[3] = -r[2]*sin(ang/2);
+
+    normalizeQuat(q);
+}
+
 void DCM::initializeFilter(){
     const float r[3] = {R_0};
     const float ang = ANG_0;

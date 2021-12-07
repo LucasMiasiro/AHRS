@@ -2,8 +2,9 @@ from matplotlib.pyplot import axis
 import pythonUtils
 #-------------------------------------------------------------------
 
-file = "6.CSV"
+file = "18.CSV"
 path = "/run/media/raccoon/INS_Data/"
+# path = "logs/"
 saveDir = "logs/"
 fileout = saveDir + file[:-4] + ".eps"
 fileoutLatLon = saveDir + file[:-4] + "LatLon" + ".eps"

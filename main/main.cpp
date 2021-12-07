@@ -85,7 +85,7 @@ extern "C" void app_main(void)
                             &navData,
                             2,
                             &sendTask_h,
-                            1);
+                            1); //TODO mudar para Core 0?
 
 #elif SEND_MODE==2
 
@@ -158,7 +158,9 @@ void navTask(void* Parameters){
     navData_ptr* navData = (navData_ptr*) Parameters;
     float A_E[4] = {0.0f};
     DCM DCM;
-    DCM.initializeFilter();
+    navData->IMU_ptr->getData(navData->A_ptr, navData->G_ptr,
+                              navData->M_ptr, navData->B_ptr);
+    DCM.initializeFilter(navData->M_ptr);
     KF KF(&DCM, navData);
 
 #if LOG_TIMER

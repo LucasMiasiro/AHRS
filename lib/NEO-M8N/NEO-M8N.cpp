@@ -55,18 +55,20 @@ void NEOM8N::setHome(){
 
     while(count < GNSS_CONV_TIME_S){
 
-#if GNSS_HOME_REQ_3D
+#if GNSS_HOME_REQ_3D==1
         is3DFixed = (GNSS.fix > GPS_FIX_INVALID) && 
                     (GNSS.fix_mode == GPS_MODE_3D) &&
                     (GNSS.sats_in_use > GNSS_MIN_SATS) &&
                     (GNSS.latitude != 0) &&
                     (GNSS.longitude != 0);
-#else
+#elif GNSS_HOME_REQ_3D==2
         is3DFixed = (GNSS.fix > GPS_FIX_INVALID) && 
                     (GNSS.fix_mode >= GPS_MODE_2D) &&
                     (GNSS.sats_in_use > GNSS_MIN_SATS) &&
                     (GNSS.latitude != 0) &&
                     (GNSS.longitude != 0);
+#else
+        is3DFixed = true;
 #endif
 
         reachedConvergence = (GNSS.speed < GNSS_CONV_VEL);
@@ -93,13 +95,13 @@ void NEOM8N::calcFlatEarthParameters(){
     float R_N, R_M;
 
     R_N = R / sqrt(1 - (2*f - f*f)*
-    sin(Home_LatLon[0]*DEG2RAD)*sin(Home_LatLon[0]*DEG2RAD));
+    sinf(Home_LatLon[0]*DEG2RAD)*sinf(Home_LatLon[0]*DEG2RAD));
 
     R_M = R_N * (1 - (2*f - f*f))/(1 - (2*f - f*f)*
-    sin(Home_LatLon[0]*DEG2RAD)*sin(Home_LatLon[0]*DEG2RAD));
+    sinf(Home_LatLon[0]*DEG2RAD)*sinf(Home_LatLon[0]*DEG2RAD));
 
     K_N = DEG2RAD/atan2f(1, R_M);
-    K_E = DEG2RAD/atan2f(1, R_N*cos(Home_LatLon[0]*DEG2RAD));
+    K_E = DEG2RAD/atan2f(1, R_N*cosf(Home_LatLon[0]*DEG2RAD));
 
 #if LOG_NEOM8N
     serialLogger::logFloat(&K_N, 1, "K_N");

@@ -27,7 +27,8 @@
  *
  */
 #define NMEA_PARSER_RUNTIME_BUFFER_SIZE (CONFIG_NMEA_PARSER_RING_BUFFER_SIZE / 2)
-#define NMEA_MAX_STATEMENT_ITEM_LENGTH (16)
+/* #define NMEA_MAX_STATEMENT_ITEM_LENGTH (16) */
+#define NMEA_MAX_STATEMENT_ITEM_LENGTH (24)
 #define NMEA_EVENT_LOOP_QUEUE_SIZE (16)
 
 /**
@@ -67,12 +68,16 @@ typedef struct {
  * @param esp_gps esp_gps_t type object
  * @return float Latitude or Longitude value (unit: degree)
  */
-static float parse_lat_long(esp_gps_t *esp_gps)
+static double parse_lat_long(esp_gps_t *esp_gps)
 {
-    float ll = strtof(esp_gps->item_str, NULL);
+    /* printf("LatLon: %s\t", esp_gps->item_str); */
+    /* float ll = strtof(esp_gps->item_str, NULL); */
+    double ll = strtod(esp_gps->item_str, NULL);
+    /* printf("->\t %5.10f\n", ll); */
     int deg = ((int)ll) / 100;
-    float min = ll - (deg * 100);
-    ll = deg + min / 60.0f;
+    double min = ll - (deg * 100);
+    ll = deg + min / 60.0;
+    /* printf("->\t %.8f\n", (float)ll); */
     return ll;
 }
 
