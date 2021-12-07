@@ -9,6 +9,7 @@
 #include "main.h"
 #include "NEO-M8N.h"
 
+
 void KF::getStates(float *pos, float *vel){
     pos[0] = states[0];
     pos[1] = states[1];
@@ -34,8 +35,9 @@ void KF::correct(){
 }
 
 void KF::fuseBaro(){
-    states[2] = _navData->IMU_ptr->Home_Alt - *(_navData->B_ptr);
-    states[5] = 0;
+    float deltaZ = _navData->IMU_ptr->Home_Alt - *(_navData->B_ptr) - z_prev;
+    states[2] += Kz[0]*deltaZ;
+    states[5] += Kz[1]*deltaZ;
 }
 
 void KF::fuseGNSS(){
@@ -97,7 +99,9 @@ void KF::reset(){
 }
 
 void KF::predict(float *A_E){
+    serialLogger::logFloat(A_E, 4, "AE");
     A_E[3] += 1;
+    z_prev = states[2];
 
     //A priori estimate
     propagateStates(A_E);
@@ -105,16 +109,15 @@ void KF::predict(float *A_E){
     //A priori covariance matrix propagation
     propagateCovarianceMatrixPriori(Px, Qx);
     propagateCovarianceMatrixPriori(Py, Qy);
-    propagateCovarianceMatrixPriori(Pz, Qz);
 }
 
 void KF::propagateStates(float *A_E){
     states[0] += A_E[1]*hdtsG + states[3]*dt;
     states[1] += A_E[2]*hdtsG + states[4]*dt;
     states[2] += A_E[3]*hdtsG + states[5]*dt;
-    states[3] += A_E[1]*dt;
-    states[4] += A_E[2]*dt;
-    states[5] += A_E[3]*dt;
+    states[3] += A_E[1]*dtG;
+    states[4] += A_E[2]*dtG;
+    states[5] += A_E[3]*dtG;
 }
 
 void KF::propagateCovarianceMatrixPriori(float P[2][2], const float Q[2]){

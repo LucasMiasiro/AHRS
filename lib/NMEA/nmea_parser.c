@@ -70,7 +70,6 @@ typedef struct {
  */
 static float parse_lat_long(esp_gps_t *esp_gps)
 {
-    printf("Received %s\n", esp_gps->item_str);
     float ll = strtof(esp_gps->item_str, NULL);
     int deg = ((int)ll) / 100;
     float min = ll - (deg * 100);

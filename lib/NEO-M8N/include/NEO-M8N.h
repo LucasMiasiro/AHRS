@@ -12,8 +12,8 @@ class NEOM8N{
     private:
     const float f = EARTH_FLATTENING;
     const float R = EARTH_EQUATORIAL_RADIUS;
-    float K_N, K_E;
     void calcFlatEarthParameters();
+    float K_N, K_E;
 
     public:
     float Home_LatLon[2] = {0, 0};

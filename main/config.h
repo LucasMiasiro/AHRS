@@ -9,9 +9,11 @@
 #define R_0                             0.0f, 0.0f, 1.0f
 #define ANG_0                           0.0f
 #define AXIS_CONFIG                     1
-#define KF_POSXY_R                      1.0, 0.2 //GNSS
-#define KF_POSXY_Q                      0.0005, 0.005 //State
 #define SHOULD_USE_MAG2                 1
+#define ACCEL_STD_DEV                   0.0008f
+#define BARO_STD_DEV                    0.34f
+#define GNSS_POS_STD_DEV                2.5f
+#define GNSS_VEL_STD_DEV                0.05f
 
 // Application Control
 #define SYSTEM_SAMPLE_PERIOD_MS         100
@@ -143,9 +145,9 @@
 #define GNSS_MIN_SATS                   3
 #define GNSS_RX_IO                      16
 #define GNSS_BAUD                       9600
-#define GNSS_CONV_TIME_S                0
+#define GNSS_CONV_TIME_S                10
 #define GNSS_CONV_VEL                   0.5f
-#define GNSS_HOME_REQ_3D                0
+#define GNSS_HOME_REQ_3D                1
 
 // SD SPI
 #define SD_MOUNT_POINT                  "/sdcard"
