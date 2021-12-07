@@ -13,3 +13,4 @@ void matProd_3x3x1(float *in1, float *in2, float *out);
 void matProd_2x2x2(float *in1, float *in2, float *out);
 void matProd_2x2x1(float *in1, float *in2, float *out);
 void quatConj(float *in, float *out);
+float sq(float in);

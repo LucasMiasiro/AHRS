@@ -95,13 +95,13 @@ void NEOM8N::calcFlatEarthParameters(){
     float R_N, R_M;
 
     R_N = R / sqrt(1 - (2*f - f*f)*
-    sin(Home_LatLon[0]*DEG2RAD)*sin(Home_LatLon[0]*DEG2RAD));
+    sinf(Home_LatLon[0]*DEG2RAD)*sinf(Home_LatLon[0]*DEG2RAD));
 
     R_M = R_N * (1 - (2*f - f*f))/(1 - (2*f - f*f)*
-    sin(Home_LatLon[0]*DEG2RAD)*sin(Home_LatLon[0]*DEG2RAD));
+    sinf(Home_LatLon[0]*DEG2RAD)*sinf(Home_LatLon[0]*DEG2RAD));
 
     K_N = DEG2RAD/atan2f(1, R_M);
-    K_E = DEG2RAD/atan2f(1, R_N*cos(Home_LatLon[0]*DEG2RAD));
+    K_E = DEG2RAD/atan2f(1, R_N*cosf(Home_LatLon[0]*DEG2RAD));
 
 #if LOG_NEOM8N
     serialLogger::logFloat(&K_N, 1, "K_N");

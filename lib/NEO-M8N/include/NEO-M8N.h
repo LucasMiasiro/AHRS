@@ -16,7 +16,7 @@ class NEOM8N{
     float K_N, K_E;
 
     public:
-    float Home_LatLon[2] = {0, 0};
+    double Home_LatLon[2] = {0, 0};
     gps_t GNSS;
     bool newData = false;
     navDataGNSS data;

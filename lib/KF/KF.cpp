@@ -9,7 +9,6 @@
 #include "main.h"
 #include "NEO-M8N.h"
 
-
 void KF::getStates(float *pos, float *vel){
     pos[0] = states[0];
     pos[1] = states[1];
@@ -48,10 +47,18 @@ void KF::fuseGNSS(){
 
     _navData->GNSS_ptr->getPos(&meas[0], &meas[1]);
 
-    meas[3] = cosf(_navData->GNSS_ptr->GNSS.cog * DEG2RAD)
-                    * _navData->GNSS_ptr->GNSS.speed;
-    meas[4] = sinf(_navData->GNSS_ptr->GNSS.cog * DEG2RAD)
-                    * _navData->GNSS_ptr->GNSS.speed;
+    if (_navData->GNSS_ptr->GNSS.speed < GNSS_COG_VEL_MIN){
+        meas[3] = (meas[0] - x_gnss_prev)/dt;
+        meas[4] = (meas[1] - y_gnss_prev)/dt;
+    } else {
+        meas[3] = cosf(_navData->GNSS_ptr->GNSS.cog * DEG2RAD)
+                        * _navData->GNSS_ptr->GNSS.speed;
+        meas[4] = sinf(_navData->GNSS_ptr->GNSS.cog * DEG2RAD)
+                        * _navData->GNSS_ptr->GNSS.speed;
+    }
+
+    x_gnss_prev = meas[0];
+    y_gnss_prev = meas[1];
 
     buf_6[0] = meas[0] - states[0];
     buf_6[1] = meas[3] - states[3];
@@ -99,9 +106,9 @@ void KF::reset(){
 }
 
 void KF::predict(float *A_E){
-    serialLogger::logFloat(A_E, 4, "AE");
     A_E[3] += 1;
     z_prev = states[2];
+    /* serialLogger::logFloat(A_E, 4, "AE"); */
 
     //A priori estimate
     propagateStates(A_E);

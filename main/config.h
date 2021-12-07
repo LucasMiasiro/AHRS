@@ -26,9 +26,9 @@
     #define LOG_DCM                     0
     #define LOG_TIMER                   0
     #define LOG_ATGM336                 0
-    #define LOG_NEOM8N                  1
+    #define LOG_NEOM8N                  0
     #define SEND_MODE                   1
-    #define LOG_SD                      0
+    #define LOG_SD                      1
 #else
     #define LOG_MAIN                    0
     #define LOG_GY87                    0
@@ -84,7 +84,7 @@
 #define GY87_CONFIG_11_OPT              0X2E
 
 #define GY87_IMU_DATA_ADD               0X3B // First accel data address
-#define GY87_ACCEL_SENS                 -1.0/16384/1.05f // Accel sensivity
+#define GY87_ACCEL_SENS                 -1.0/16384/1.04f // Accel sensivity
 #define GY87_GYRO_SENS                  1.0/131.0*DEG2RAD // Gyro sensivity
 #define GY87_TEMP_SENS                  1 // Temp sensivity
 #if APP_MODE==2
@@ -145,9 +145,10 @@
 #define GNSS_MIN_SATS                   3
 #define GNSS_RX_IO                      16
 #define GNSS_BAUD                       9600
-#define GNSS_CONV_TIME_S                10
 #define GNSS_CONV_VEL                   0.5f
+#define GNSS_COG_VEL_MIN                2.0f
 #define GNSS_HOME_REQ_3D                1
+#define GNSS_CONV_TIME_S                10
 
 // SD SPI
 #define SD_MOUNT_POINT                  "/sdcard"

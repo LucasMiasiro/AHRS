@@ -1,6 +1,7 @@
 #pragma once
 #include "config.h"
 #include "math.h"
+#include "vMath.h"
 
 #include "DCM.h"
 #include "main.h"
@@ -17,10 +18,10 @@ private:
     float buf_6[6] = {0};
     float meas[6] = {0};
 
-    const float Qx[2] = {hdtsG*ACCEL_STD_DEV, dtG*ACCEL_STD_DEV};
-    const float Qy[2] = {hdtsG*ACCEL_STD_DEV, dtG*ACCEL_STD_DEV};
-    const float Rx[2] = {GNSS_POS_STD_DEV, GNSS_VEL_STD_DEV};
-    const float Ry[2] = {GNSS_POS_STD_DEV, GNSS_VEL_STD_DEV};
+    const float Qx[2] = {sq(hdtsG*ACCEL_STD_DEV), sq(dtG*ACCEL_STD_DEV)};
+    const float Qy[2] = {sq(hdtsG*ACCEL_STD_DEV), sq(dtG*ACCEL_STD_DEV)};
+    const float Rx[2] = {sq(GNSS_POS_STD_DEV), sq(GNSS_VEL_STD_DEV)};
+    const float Ry[2] = {sq(GNSS_POS_STD_DEV), sq(GNSS_VEL_STD_DEV)};
 
     float Px[2][2] = {{0.1, 0.0},
                       {0.0, 0.01}};
@@ -34,7 +35,7 @@ private:
                     stdDevRatio*dt};
 
     float buf_2x2[2][2] = {{0}};
-    float z_prev;
+    float z_prev = 0, x_gnss_prev = 0, y_gnss_prev = 0;
 
 
     void propagateCovarianceMatrixPriori(float P[2][2], const float Q[2]);
