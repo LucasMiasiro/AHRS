@@ -2,7 +2,7 @@ from matplotlib.pyplot import axis
 import pythonUtils
 #-------------------------------------------------------------------
 
-file = "18.CSV"
+file = "28.CSV"
 path = "/run/media/raccoon/INS_Data/"
 # path = "logs/"
 saveDir = "logs/"

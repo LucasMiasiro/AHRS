@@ -35,7 +35,7 @@ private:
                     stdDevRatio*dt};
 
     float buf_2x2[2][2] = {{0}};
-    float z_prev = 0, x_gnss_prev = 0, y_gnss_prev = 0;
+    float z_prev = 0, x_gnss_prev = 0, y_gnss_prev = 0, Uder = 0;
 
 
     void propagateCovarianceMatrixPriori(float P[2][2], const float Q[2]);

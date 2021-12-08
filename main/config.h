@@ -10,10 +10,10 @@
 #define ANG_0                           0.0f
 #define AXIS_CONFIG                     1
 #define SHOULD_USE_MAG2                 1
-#define ACCEL_STD_DEV                   0.0008f
+#define ACCEL_STD_DEV                   0.1f
 #define BARO_STD_DEV                    0.34f
-#define GNSS_POS_STD_DEV                2.5f
-#define GNSS_VEL_STD_DEV                0.05f
+#define GNSS_POS_STD_DEV                1.0f
+#define GNSS_VEL_STD_DEV                0.01f
 
 // Application Control
 #define SYSTEM_SAMPLE_PERIOD_MS         100
