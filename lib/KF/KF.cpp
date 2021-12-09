@@ -113,7 +113,7 @@ void KF::reset(){
 void KF::predict(float *A_E){
     A_E[3] += 1;
     z_prev = states[2];
-    /* serialLogger::logFloat(A_E, 4, "AE"); */
+    serialLogger::logFloat(A_E, 4, "AE");
 
     //A priori estimate
     propagateStates(A_E);

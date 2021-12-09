@@ -3,7 +3,7 @@ rcParams['grid.linewidth'] = 1.6
 rcParams['grid.color'] = 'white'
 from mpl_toolkits.mplot3d import Axes3D
 
-def plotAxis(figSize, axisLimits):
+def plotAxis3D(figSize, axisLimits):
     plt.ion()
     fig = plt.figure(figsize = figSize, tight_layout = True, facecolor = None)
     ax = fig.add_subplot(1, 1, 1, aspect='auto', projection = '3d')

@@ -1,15 +1,10 @@
 #pragma once
 
 // Filter Control
-#define GYRO_ERROR                      1.0
-/* #define GYRO_DRIFT                      0.2 */
+#define GYRO_ERROR                      5.0
 #define COMPENSATE                      1
 #define WMM_LOCALFIELD                  0.8660f, 0.0f, 0.5f
 #define WMM_MAG_DECLINATION             -20.2*DEG2RAD
-#define R_0                             0.0f, 0.0f, 1.0f
-#define ANG_0                           0.0f
-#define AXIS_CONFIG                     1
-#define SHOULD_USE_MAG2                 1
 #define ACCEL_STD_DEV                   0.1f
 #define BARO_STD_DEV                    0.34f
 #define GNSS_POS_STD_DEV                1.0f
@@ -28,7 +23,7 @@
     #define LOG_ATGM336                 0
     #define LOG_NEOM8N                  0
     #define SEND_MODE                   1
-    #define LOG_SD                      1
+    #define LOG_SD                      0
 #else
     #define LOG_MAIN                    0
     #define LOG_GY87                    0
@@ -41,6 +36,10 @@
 #endif
 
 #define UTC_DIFF                        -3
+#define R_0                             0.0f, 0.0f, 1.0f
+#define ANG_0                           0.0f
+#define SHOULD_USE_MAG2                 1
+#define AXIS_CONFIG                     1
 
 // _________________________________________________________________________
 
@@ -147,8 +146,10 @@
 #define GNSS_BAUD                       9600
 #define GNSS_CONV_VEL                   0.5f
 #define GNSS_COG_VEL_MIN                2.0f
-#define GNSS_HOME_REQ_3D                1
-#define GNSS_CONV_TIME_S                10
+/* #define GNSS_HOME_REQ_3D                1 */
+/* #define GNSS_CONV_TIME_S                10 */
+#define GNSS_HOME_REQ_3D                0
+#define GNSS_CONV_TIME_S                0
 
 // SD SPI
 #define SD_MOUNT_POINT                  "/sdcard"
