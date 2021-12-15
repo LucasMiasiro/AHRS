@@ -14,6 +14,7 @@
 
 #pragma once
 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -104,8 +105,8 @@ typedef enum {
  *
  */
 typedef struct {
-    float latitude;                                                /*!< Latitude (degrees) */
-    float longitude;                                               /*!< Longitude (degrees) */
+    double latitude;                                               /*!< Latitude (degrees) */
+    double longitude;                                              /*!< Longitude (degrees) */
     float altitude;                                                /*!< Altitude (meters) */
     gps_fix_t fix;                                                 /*!< Fix status */
     uint8_t sats_in_use;                                           /*!< Number of satellites in use */

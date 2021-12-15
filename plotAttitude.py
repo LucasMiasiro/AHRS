@@ -22,7 +22,7 @@ v = [[l, 0, 0],
     [0, 0, l]]
 axis = [0, 0, 0]
 
-plt, fig, ax = pythonUtils.plotAxis(figSize, axisLimits)
+plt, fig, ax = pythonUtils.plotAxis3D(figSize, axisLimits)
 
 def vector2Line(vector, origin):
     return [[origin_i, origin_i + vector_i] for origin_i, vector_i in zip(origin, vector)]

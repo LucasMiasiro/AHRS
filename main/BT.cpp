@@ -109,8 +109,6 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param){
                 logFloat(param, __navDataBT_ptr->navData->M_ptr,
                         3, 1, "MAG", 4);
             }
-                /* vTaskResume(*(__navDataBT_ptr->gyroCalTask_h)); */
-            /* } */
 
         }
  

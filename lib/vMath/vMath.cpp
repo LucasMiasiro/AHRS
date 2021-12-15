@@ -80,3 +80,7 @@ void quatProd(float *a, float *b, float *out){
 void quatProdConst(float *in, float K, float *out){
     dsps_mulc_f32_ae32(in, out, 4, K, 1, 1);
 }
+
+float sq(float in){
+    return in*in;
+}

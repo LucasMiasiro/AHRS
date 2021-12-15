@@ -83,7 +83,7 @@ bool GY87::getData(float* A, float* G, float* M, float* B){
 #endif
 
         calcTruePressure();
-        *B = 0.2*calcAlt() + 0.8*lastB;
+        *B = calcAlt();
         lastB = *B;
 
         return 1;
@@ -110,7 +110,7 @@ bool GY87::getData(float* A, float* G, float* M, float* B){
     magModule = sqrt((*M)*(*M) + (*(M+1))*(*(M+1)) + (*(M+2))*(*(M+2)));
 
     calcTruePressureAccum();
-    *B = 0.2*calcAlt() + 0.8*lastB;
+    *B = calcAlt();
     lastB = *B;
 
     cleanAccum();
