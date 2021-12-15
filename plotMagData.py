@@ -9,10 +9,10 @@ color = 'royalblue'
 colors = ['tomato', 'mediumspringgreen', 'royalblue']
 alpha = 0.3
 origin = [0, 0, 0]
-l = 800
-axisLimits = [-600, 600]
+l = 300
+axisLimits = [-400, 400]
 plotNEU = True
-figSize = (7, 7)
+figSize = (6, 6)
 
 #-------------------------------------------------------------------
 
@@ -22,7 +22,7 @@ v = [[l, 0, 0],
     [0, l, 0],
     [0, 0, l]]
 
-plt, fig, ax = pythonUtils.plotAxis3D(figSize, axisLimits)
+plt, fig, ax = pythonUtils.plotAxis3D(figSize, axisLimits, mag = True)
 
 def vector2Line(vector, origin):
     return [[origin_i, origin_i + vector_i] for origin_i, vector_i in zip(origin, vector)]

@@ -51,6 +51,9 @@ void KF::fuseGNSS(){
         meas[3] = (meas[0] - x_gnss_prev)/dt;
         meas[4] = (meas[1] - y_gnss_prev)/dt;
         Uder = sqrt(sq(meas[3]) + sq(meas[4]));
+        if (Uder < 0.01){
+            Uder = 0.01;
+        }
 
         meas[3] = meas[3]*_navData->GNSS_ptr->GNSS.speed/Uder;
         meas[4] = meas[4]*_navData->GNSS_ptr->GNSS.speed/Uder;

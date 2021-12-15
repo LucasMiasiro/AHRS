@@ -1,7 +1,7 @@
 #pragma once
 
 // Filter Control
-#define GYRO_ERROR                      5.0
+#define GYRO_ERROR                      15.0
 #define COMPENSATE                      1
 #define WMM_LOCALFIELD                  0.8660f, 0.0f, 0.5f
 #define WMM_MAG_DECLINATION             -20.2*DEG2RAD
@@ -23,7 +23,7 @@
     #define LOG_ATGM336                 0
     #define LOG_NEOM8N                  0
     #define SEND_MODE                   1
-    #define LOG_SD                      0
+    #define LOG_SD                      1
 #else
     #define LOG_MAIN                    0
     #define LOG_GY87                    0
@@ -89,7 +89,8 @@
 #if APP_MODE==2
     #define GY87_GYRO_CAL               0, 0, 0, 1, 1, 1
 #else
-    #define GY87_GYRO_CAL               -0.0376058, 0.0255178, 0.00165873, 1, 1, 1
+    #define GY87_GYRO_CAL               -0.0421144, 0.0254298, 0.0125464, 1, 1, 1
+
 #endif
 
 // MAG
@@ -112,7 +113,8 @@
 #if APP_MODE==1
     #define GY87_MAG_CAL                0, 0, 0, 1, 1, 1
 #else
-    #define GY87_MAG_CAL                51.4152, 70.2047, 16.7953, 0.909427, 0.916094, 1.20031
+    /* #define GY87_MAG_CAL                63.6959, 182.099, 66.4269, 0.898205, 0.927188, 1.20076 */
+    #define GY87_MAG_CAL                49.883, 166.825, 58.2164, 0.912561, 0.909289, 1.20514
 #endif
 
 // BARO
@@ -141,15 +143,15 @@
 #define GNSS_TASK_KB                    4
 #define GNSS_TASK_CORE                  1
 #define GNSS_TASK_PRIORITY              1
-#define GNSS_MIN_SATS                   3
+#define GNSS_MIN_SATS                   4
 #define GNSS_RX_IO                      16
 #define GNSS_BAUD                       9600
 #define GNSS_CONV_VEL                   0.5f
-#define GNSS_COG_VEL_MIN                2.0f
-/* #define GNSS_HOME_REQ_3D                1 */
-/* #define GNSS_CONV_TIME_S                10 */
-#define GNSS_HOME_REQ_3D                0
-#define GNSS_CONV_TIME_S                0
+#define GNSS_COG_VEL_MIN                1.0f
+#define GNSS_HOME_REQ_3D                1
+#define GNSS_CONV_TIME_S                10
+/* #define GNSS_HOME_REQ_3D                0 */
+/* #define GNSS_CONV_TIME_S                0 */
 
 // SD SPI
 #define SD_MOUNT_POINT                  "/sdcard"
