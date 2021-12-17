@@ -1,1 +1,1 @@
-- INS for attitude, velocity and position estimation
+- INS-GNSS integrated system for embedded attitude, velocity and position estimation
