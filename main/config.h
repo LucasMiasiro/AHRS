@@ -114,7 +114,8 @@
     #define GY87_MAG_CAL                0, 0, 0, 1, 1, 1
 #else
     /* #define GY87_MAG_CAL                63.6959, 182.099, 66.4269, 0.898205, 0.927188, 1.20076 */
-    #define GY87_MAG_CAL                49.883, 166.825, 58.2164, 0.912561, 0.909289, 1.20514
+    #define GY87_MAG_CAL                0, 0, 0, 1, 1, 1
+    /* #define GY87_MAG_CAL                49.883, 166.825, 58.2164, 0.912561, 0.909289, 1.20514 */
 #endif
 
 // BARO
@@ -148,10 +149,10 @@
 #define GNSS_BAUD                       9600
 #define GNSS_CONV_VEL                   0.5f
 #define GNSS_COG_VEL_MIN                1.0f
-#define GNSS_HOME_REQ_3D                1
-#define GNSS_CONV_TIME_S                10
-/* #define GNSS_HOME_REQ_3D                0 */
-/* #define GNSS_CONV_TIME_S                0 */
+/* #define GNSS_HOME_REQ_3D                1 */
+/* #define GNSS_CONV_TIME_S                10 */
+#define GNSS_HOME_REQ_3D                0
+#define GNSS_CONV_TIME_S                0
 
 // SD SPI
 #define SD_MOUNT_POINT                  "/sdcard"
